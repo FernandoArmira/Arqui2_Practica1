@@ -28,7 +28,7 @@ const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb+srv://fernando:ChZIc4DP7SwmWED1@cluster0.tk4g5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 console.log("Conexion a BD")
 
-//Lectura de datos de arduino
+//Lectura de datos enviados de arduino
 /*port.on("open",() => {
     console.log('Se abrio la comunicacion');
 });*/
@@ -38,10 +38,17 @@ console.log("Conexion a BD")
     insertData(data); // inserccion de datos
 });*/
 
-// Ingresar datos de prueba al DB
-prueba = "{\"temperatura\": 19, \"viento\": 61, \"humedad\": 12}";
+
+// Ingresar datos de prueba a ,a DB
+prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
 console.log(prueba);
 insertData(prueba);
+console.log("Dato insertado \n");
+console.log("Ulgimo dato")
+selectData();
+
+
+//Funciones Base de datos
 
 //Funcion insertar datos en la DB
 function insertData(data){
@@ -53,5 +60,19 @@ function insertData(data){
             if(err) throw err;
             db.close();
         });
+    });
+}
+
+//Seleccionar ultimo dato de la DB
+function selectData(){
+    MongoClient.connect(url, function(err, db){
+        if (err) throw err; 
+        const dbo = db.db ('mydb'); 
+        dbo.collection ('medidas').findOne({}, {sort:{$natural:-1}},function(err, doc){
+            if(err) throw err;
+            console.log(doc);
+            db.close();
+        }); 
+
     });
 }
