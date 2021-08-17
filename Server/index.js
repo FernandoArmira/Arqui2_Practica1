@@ -40,15 +40,15 @@ console.log("Conexion a BD")
 
 
 // Ingresar datos de prueba a ,a DB
-//prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
+prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
 //prueba = "abc";
-prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
+//prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
 console.log(prueba);
 
-if (prueba.includes("Medida")){
-    insertData(prueba);
-    console.log("Dato insertado \n");
-}
+//if (prueba.includes("Medida")){ //validar datos
+insertData(prueba);
+console.log("Dato insertado \n");
+//}
 
 console.log("Ultimo dato")
 selectData();
@@ -78,6 +78,10 @@ function selectData(){
         //dbo.collection ('medidas').findOne({Medida:'humedad'}, {sort:{$natural:-1}},function(err, doc){  //Filtrar datos por medida
             if(err) throw err;
             console.log(doc);
+            //Obtener datos del json
+            console.log("Temperatura:" + doc.temperatura);
+            console.log("Viento:" + doc.viento);
+            console.log("Temperatura:" + doc.humedad);
             db.close();
         }); 
 
