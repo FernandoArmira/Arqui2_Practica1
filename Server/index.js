@@ -1,16 +1,14 @@
-/*const express = require('express')
+const express = require('express')
 
 const app = express()
 
 app.set('port', 3000)
 
-app.get('/',(req, res ) => {
-    res.send('Practica 1 Arqui 2')
-})
-
 app.listen(app.get('port'), () => {
     console.log(`Servidor corriendo en el puerto ${app.get('port')}`)
-})*/
+})
+
+var dato = "";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,22 +36,6 @@ console.log("Conexion a BD")
     insertData(data); // inserccion de datos
 });*/
 
-
-// Ingresar datos de prueba a ,a DB
-prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
-//prueba = "abc";
-//prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
-console.log(prueba);
-
-//if (prueba.includes("Medida")){ //validar datos
-insertData(prueba);
-console.log("Dato insertado \n");
-//}
-
-console.log("Ultimo dato")
-selectData();
-
-
 //Funciones Base de datos
 
 //Funcion insertar datos en la DB
@@ -78,14 +60,34 @@ function selectData(){
         //dbo.collection ('medidas').findOne({Medida:'humedad'}, {sort:{$natural:-1}},function(err, doc){  //Filtrar datos por medida
             if(err) throw err;
             console.log(doc);
+            dato = doc;
             //Obtener datos del json
-            console.log("Temperatura:" + doc.temperatura);
+            /*console.log("Temperatura:" + doc.temperatura);
             console.log("Viento:" + doc.viento);
-            console.log("Temperatura:" + doc.humedad);
+            console.log("Temperatura:" + doc.humedad);*/
             db.close();
         }); 
 
     });
 }
 
+// Endpoint
+app.get('/',(req, res ) => {
+    res.send(dato)
+})
 
+
+// Ingresar datos de prueba a ,a DB
+
+prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
+//prueba = "abc";
+//prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
+console.log(prueba);
+
+//if (prueba.includes("Medida")){ //validar datos
+insertData(prueba);
+console.log("Dato insertado \n");
+//}
+
+//console.log("Ultimo dato")
+selectData();
