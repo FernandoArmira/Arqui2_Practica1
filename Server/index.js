@@ -79,7 +79,7 @@ app.get('/',(req, res ) => {
 
 // Ingresar datos de prueba a ,a DB
 
-prueba = "{\"temperatura\": 25, \"viento\": 62, \"humedad\": 13}";
+prueba = "{\"temperatura\": 27, \"viento\": 62, \"humedad\": 13, \"direccion\": 40}";
 //prueba = "abc";
 //prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
 console.log(prueba);
