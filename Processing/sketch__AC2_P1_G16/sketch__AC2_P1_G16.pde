@@ -148,10 +148,18 @@ void setup(){
   text = loadStrings("http://localhost:3000/");
   if(text.length > 0){
     json = parseJSONObject(text[0]);
+    if(!json.isNull("temperatura")){
     temperatura = json.getFloat("temperatura");
+    }  
+    if(!json.isNull("viento")){
     viento = json.getFloat("viento");
+    }
+    if(!json.isNull("humedad")){
     humedad = json.getFloat("humedad");
+    }
+    if(!json.isNull("direccion")){
     direccion = json.getFloat("direccion");
+    }
   }
   
 }
@@ -163,10 +171,18 @@ void draw(){
   text = loadStrings("http://localhost:3000/");
   if(text.length > 0){
     json = parseJSONObject(text[0]);
+    if(!json.isNull("temperatura")){
     temperatura = json.getFloat("temperatura");
+    }  
+    if(!json.isNull("viento")){
     viento = json.getFloat("viento");
+    }
+    if(!json.isNull("humedad")){
     humedad = json.getFloat("humedad");
+    }
+    if(!json.isNull("direccion")){
     direccion = json.getFloat("direccion");
+    }
   }
   
   
