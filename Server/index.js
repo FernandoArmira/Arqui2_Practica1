@@ -13,12 +13,12 @@ var dato = "";
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial
-/*const SerialPort = require('serialport');
-const ReadLine  = require('@serialport/parser-readline');*/
+const SerialPort = require('serialport');
+const ReadLine  = require('@serialport/parser-readline');
 
 //Asignar el numero de puerto serial y baudrate
-/*const port = new SerialPort('COM1',{baudRate: 9600});
-const parser = port.pipe(new ReadLine({delimiter: '\n'}));*/
+const port = new SerialPort('COM4',{baudRate: 9600});
+const parser = port.pipe(new ReadLine({delimiter: '\n'}));
 
 //Conexion a BD
 //mongodb+srv://fernando:<password>@cluster0.tk4g5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
@@ -27,14 +27,14 @@ const url = "mongodb+srv://fernando:ChZIc4DP7SwmWED1@cluster0.tk4g5.mongodb.net/
 console.log("Conexion a BD")
 
 //Lectura de datos enviados de arduino
-/*port.on("open",() => {
+port.on("open",() => {
     console.log('Se abrio la comunicacion');
-});*/
+});
 
-/*parser.on("data", data =>{
+parser.on("data", data =>{
     console.log(data);
     insertData(data); // inserccion de datos
-});*/
+});
 
 //Funciones Base de datos
 
@@ -79,15 +79,15 @@ app.get('/',(req, res ) => {
 
 // Ingresar datos de prueba a ,a DB
 
-prueba = "{\"temperatura\": 27, \"viento\": 62, \"humedad\": 13, \"direccion\": 40}";
+//prueba = "{\"temperatura\": 27, \"viento\": 62, \"humedad\": 13, \"direccion\": 40}";
 //prueba = "abc";
 //prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
-console.log(prueba);
+//console.log(prueba);
 
 //if (prueba.includes("Medida")){ //validar datos
-insertData(prueba);
-console.log("Dato insertado \n");
+//insertData(prueba);
+//console.log("Dato insertado \n");
 //}
 
 //console.log("Ultimo dato")
-selectData();
+//selectData();
