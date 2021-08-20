@@ -36,6 +36,7 @@ port.on("open",() => {
 parser.on("data", data =>{
     console.log(data);
     insertData(data); // inserccion de datos
+    selectData();
 });
 
 //Funciones Base de datos
