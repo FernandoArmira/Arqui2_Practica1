@@ -146,11 +146,14 @@ void setup(){
   */
   
   text = loadStrings("http://localhost:3000/");
-  json = parseJSONObject(text[0]);
-  temperatura = json.getFloat("temperatura");
-  viento = json.getFloat("viento");
-  humedad = json.getFloat("humedad");
-  direccion = json.getFloat("direccion");
+  if(text.length > 0){
+    json = parseJSONObject(text[0]);
+    temperatura = json.getFloat("temperatura");
+    viento = json.getFloat("viento");
+    humedad = json.getFloat("humedad");
+    direccion = json.getFloat("direccion");
+  }
+  
 }
 
 void draw(){
@@ -158,11 +161,14 @@ void draw(){
   VALORES DE NODE
   */
   text = loadStrings("http://localhost:3000/");
-  json = parseJSONObject(text[0]);
-  temperatura = json.getFloat("temperatura");
-  viento = json.getFloat("viento");
-  humedad = json.getFloat("humedad");
-  direccion = json.getFloat("direccion");
+  if(text.length > 0){
+    json = parseJSONObject(text[0]);
+    temperatura = json.getFloat("temperatura");
+    viento = json.getFloat("viento");
+    humedad = json.getFloat("humedad");
+    direccion = json.getFloat("direccion");
+  }
+  
   
   //Valores Random
   int value = (int)viento; //(int)random(0,80);
