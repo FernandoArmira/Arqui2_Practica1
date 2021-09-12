@@ -9,7 +9,7 @@ app.listen(app.get('port'), () => {
 })
 
 var dato = "";
-
+var fecha = new Date();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial
@@ -34,9 +34,9 @@ port.on("open",() => {
 });
 
 parser.on("data", data =>{
-    console.log(data);
-    insertData(data); // inserccion de datos
-    selectData();
+    //console.log(data);
+    //insertData(datetime(prueba))
+    //selectData();
 });
 
 //Funciones Base de datos
@@ -74,23 +74,25 @@ function selectData(){
     });
 }
 
+function datetime(data){
+    const str = data.substring(0, data.length - 1);
+    //console.log(str);
+    const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
+    console.log(str2);
+    return str2
+}
+
 // Endpoint
 app.get('/',(req, res ) => {
     res.send(dato)
 })
 
 
-// Ingresar datos de prueba a ,a DB
+// Ingresar datos de prueba a la DB
+prueba = "{\"sentado\": 0, \"peso\": 150}";
+console.log(prueba);
 
-//prueba = "{\"temperatura\": 27, \"viento\": 62, \"humedad\": 13, \"direccion\": 40}";
-//prueba = "abc";
-//prueba = "{\"Medida\": \"temperatura\" , \"Dato\": 20}";
-//console.log(prueba);
 
-//if (prueba.includes("Medida")){ //validar datos
-//insertData(prueba);
-//console.log("Dato insertado \n");
-//}
-
+insertData(datetime(prueba))
 //console.log("Ultimo dato")
-//selectData();
+selectData();
