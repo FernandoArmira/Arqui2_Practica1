@@ -17,7 +17,7 @@ const SerialPort = require('serialport');
 const ReadLine  = require('@serialport/parser-readline');
 
 //Asignar el numero de puerto serial y baudrate
-const port = new SerialPort('COM4',{baudRate: 9600});
+const port = new SerialPort('COM5',{baudRate: 9600});
 const parser = port.pipe(new ReadLine({delimiter: '\n'}));
 
 //Conexion a BD
@@ -34,9 +34,9 @@ port.on("open",() => {
 });
 
 parser.on("data", data =>{
-    //console.log(data);
-    //insertData(datetime(prueba))
-    //selectData();
+    console.log(data);
+    insertData(datetime(data))
+    selectData();
 });
 
 //Funciones Base de datos
@@ -75,6 +75,7 @@ function selectData(){
 }
 
 function datetime(data){
+    fecha = new Date();
     const str = data.substring(0, data.length - 1);
     //console.log(str);
     const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
@@ -89,10 +90,10 @@ app.get('/',(req, res ) => {
 
 
 // Ingresar datos de prueba a la DB
-prueba = "{\"sentado\": 0, \"peso\": 150}";
-console.log(prueba);
+//prueba = "{\"sentado\": 0, \"peso\": 150}";
+//console.log(prueba);
 
 
-insertData(datetime(prueba))
+//insertData(datetime(prueba))
 //console.log("Ultimo dato")
-selectData();
+//selectData();
