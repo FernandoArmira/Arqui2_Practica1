@@ -26,8 +26,8 @@ port.on("open",() => {
 });
 
 parser.on("data", data =>{
-    console.log(data);
-    database.insertData(database.datetime(data))
+    //console.log(data);
+    //database.insertData(database.datetime(data)))
 });
 
 
@@ -37,14 +37,13 @@ app.get('/',(req, res ) => {
 })
 
 app.get('/dato',(req, res ) => {
-    database.select(req,res, "13-9-2021", 0, 1)
+    database.select(req,res, "14-9-2021", 0, 1)
 })
 
 app.get('/datosdia',(req, res ) => {
-    database.selectData(req,res, "13-9-2021")
+    database.selectData(req,res, "14-9-2021")
 })
 
-//database.selectCount('12-9-2021');
 
 //Datos de prueba
 
@@ -55,3 +54,4 @@ console.log(prueba);
 database.insertData(database.datetime(prueba))
 */
 
+//database.analyzedata('12-9-2021');

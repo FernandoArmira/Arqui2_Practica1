@@ -2,7 +2,6 @@
 
 //var dato = "";
 var fecha = new Date();
-var totaldatos = 0;
 
 //Conexion a BD
 //mongodb+srv://fernando:<password>@cluster0.tk4g5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
@@ -68,20 +67,73 @@ selectData: function(req, res, datep){
       });
 },
 
-    // Numero de registros en el dia
-    selectCount: function (datap){
+    analyzedata: function (datap){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("medidas").find({fecha:datap}).count({}, function(err, result){
-                if(err){
-                    console.log("Error")
-                }else{
-                    console.log(result)
-                    totaldatos = result
+
+            dbo.collection("medidas").find({fecha: datap}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0].hora);
+                horainicial = ""
+                horafinal = ""
+                estado = ""
+                console.log(result.length)
+                for(var i =0;i<result.length;i++){
+                    if(result[i].sentado != "0"){
+                        estado = "sentado"
+                        console.log(estado)
+                        console.log(result[i].hora)
+                        horainicial = result[i].hora
+                        var j = i + 1
+                        for(j;j<result.length;j++){
+                            if(result[j].sentado == "0"){
+                                horafinal = result[j-1].hora
+                                i = j
+                                j = result.length
+                            }
+                            if(j == (result.length-1)){
+                                horafinal = result[result.length-1].hora
+                                i = j
+                            }
+                            
+                        }
+          
+
+                        console.log(horafinal)
+                        split1 = horainicial.split(":")
+                        split2 = horafinal.split(":")
+
+                        tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                        tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                        tiempototal = tiempo2 - tiempo1
+                        console.log(tiempototal.toFixed(2))
+
+                        dato = "{\"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  tiempototal.toFixed(2)  + "}"
+                        insertdata2(dato)
+
+                    }
                 }
-            })
+                    db.close()
+                });
+
           });
 
     }
+
 }
+
+
+function insertdata2(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('horarios').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
+
+
