@@ -10,6 +10,7 @@ app.listen(app.get('port'), () => {
     console.log(`Servidor corriendo en el puerto ${app.get('port')}`)
 })
 
+var hoy = new Date();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial
@@ -30,22 +31,25 @@ parser.on("data", data =>{
     //database.insertData(database.datetime(data)))
 });
 
+// Funcion que analiza los datos en la coleccion tomadas del dia anterior
+//console.log(database.yesterday())
+database.analyzedata(database.yesterday());
 
 // Rutas
 app.get('/',(req, res ) => {
     res.send("Proyecto 1 Arqui 2")
 })
 
-app.get('/dato',(req, res ) => {
-    database.select(req,res, "14-9-2021", 0, 1)
+app.get('/datosdia:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    database.selectData(req,res, fecha)
 })
 
-app.get('/datosdia',(req, res ) => {
-    database.selectData(req,res, "14-9-2021")
+app.get('/horario:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    database.selecthorario(req,res, fecha)
 })
 
-
-//Datos de prueba
 
 /*
 // Ingresar datos de prueba a la DB
@@ -53,5 +57,3 @@ prueba = "{\"sentado\": 0, \"peso\": 150}";
 console.log(prueba);
 database.insertData(database.datetime(prueba))
 */
-
-//database.analyzedata('12-9-2021');

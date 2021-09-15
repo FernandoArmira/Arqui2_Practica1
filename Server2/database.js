@@ -36,6 +36,14 @@ datetime: function(data){
     return str2
 },
 
+//Cal
+yesterday: function(){
+
+    const str2 = (fecha.getDate()-1) + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear()
+    //console.log(str2);
+    return str2
+},
+
 //Filtrar datos
 
 //Seleccionar un dato en especifico
@@ -72,13 +80,19 @@ selectData: function(req, res, datep){
             if (err) throw err;
             var dbo = db.db("mydb");
 
+            dbo.collection("horarios").find({fecha: datap}).toArray(function(err, res) {
+                if (err) throw err;
+                //console.log(res.length);
+            
+            if(res.length == 0){
+
             dbo.collection("medidas").find({fecha: datap}).toArray(function(err, result) {
                 if (err) throw err;
-                //console.log(result[0].hora);
                 horainicial = ""
                 horafinal = ""
-                estado = ""
-                console.log(result.length)
+                estado = "" // si esta bien o mal sentado
+                contador = 0
+                maximo = 0
                 for(var i =0;i<result.length;i++){
                     if(result[i].sentado != "0"){
                         estado = "sentado"
@@ -86,6 +100,11 @@ selectData: function(req, res, datep){
                         console.log(result[i].hora)
                         horainicial = result[i].hora
                         var j = i + 1
+
+                        if(j >= result.length){
+                            horafinal = horainicial
+                        }
+
                         for(j;j<result.length;j++){
                             if(result[j].sentado == "0"){
                                 horafinal = result[j-1].hora
@@ -108,18 +127,39 @@ selectData: function(req, res, datep){
                         tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
                         tiempototal = tiempo2 - tiempo1
                         console.log(tiempototal.toFixed(2))
+                        console.log(contador)
 
-                        dato = "{\"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  tiempototal.toFixed(2)  + "}"
+                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  tiempototal.toFixed(2)  + "}"
                         insertdata2(dato)
-
+                        contador++
                     }
                 }
+                    //console.log(result.length)
                     db.close()
                 });
+            }
+                
+            }); 
 
           });
 
+    },
+
+    selecthorario: function(req,res,fechap){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("horarios").find({fecha: fechap}).sort({id: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+
     }
+
+
 
 }
 
@@ -136,4 +176,21 @@ function insertdata2(data){
     });
 }
 
+function insertmax(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('maximos').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
 
+
+/*app.get('/dato:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    //console.log(fecha)
+    database.select(req,res, fecha, 0, 1)
+})*/
