@@ -18,7 +18,7 @@ const SerialPort = require('serialport');
 const ReadLine  = require('@serialport/parser-readline');
 
 //Asignar el numero de puerto serial y baudrate
-const port = new SerialPort('COM4',{baudRate: 9600});
+const port = new SerialPort('COM5',{baudRate: 9600});
 const parser = port.pipe(new ReadLine({delimiter: '\n'}));
 
 //Lectura de datos enviados de arduino
@@ -27,8 +27,8 @@ port.on("open",() => {
 });
 
 parser.on("data", data =>{
-    //console.log(data);
-    //database.insertData(database.datetime(data)))
+    console.log(data);
+    database.insertData(database.datetime(data))
 });
 
 // Funcion que analiza los datos en la coleccion tomadas del dia anterior
