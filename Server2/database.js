@@ -90,13 +90,18 @@ selectData: function(req, res, datep){
                 if (err) throw err;
                 horainicial = ""
                 horafinal = ""
-                estado = "" // si esta bien o mal sentado
+                estado = "" 
                 contador = 0
                 maximo = 0
+                acumulado = 0
+                pesopromedio = 0
+
                 for(var i =0;i<result.length;i++){
                     if(result[i].sentado != "0"){
                         estado = "sentado"
-                        console.log(estado)
+                        console.log(estado) // si esta bien o mal sentado modificar ....
+                        console.log("peso " + result[i].peso) 
+                        pesopromedio = pesopromedio + result[i].peso
                         console.log(result[i].hora)
                         horainicial = result[i].hora
                         var j = i + 1
@@ -125,16 +130,33 @@ selectData: function(req, res, datep){
 
                         tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
                         tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
-                        tiempototal = tiempo2 - tiempo1
+                        tiempototal = tiempo2 - tiempo1 // minutos
+
                         console.log(tiempototal.toFixed(2))
                         console.log(contador)
 
                         dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  tiempototal.toFixed(2)  + "}"
                         insertdata2(dato)
+
+                        if(tiempototal >= maximo){ //maximo de tiempo seguido que el usuario uso la silla
+                            maximo = tiempototal
+                        }
+
+                        acumulado = acumulado + tiempototal // acumulado del tiempo que el usuario uso la silla
+
                         contador++
                     }
                 }
-                    //console.log(result.length)
+                    console.log((maximo/60).toFixed(2)) //horas
+                    dato = "{\"fecha\": \"" + datap  + "\", \"maximo\": " + (maximo/60).toFixed(2) + "}"
+                    insertmax(dato)
+                    console.log((acumulado/60).toFixed(2)) //horas
+                    dato = "{\"fecha\": \"" + datap  + "\", \"acumulado\": " + (acumulado/60).toFixed(2) + "}"
+                    insertacumulado(dato)
+                    //console.log(contador)
+                    console.log((pesopromedio/contador).toFixed(2))
+                    dato = "{\"fecha\": \"" + datap  + "\", \"peso\": " + (pesopromedio/contador).toFixed(2) + "}"
+                    insertpesopromedio(dato)
                     db.close()
                 });
             }
@@ -150,6 +172,48 @@ selectData: function(req, res, datep){
             if (err) throw err;
             var dbo = db.db("mydb");
             dbo.collection("horarios").find({fecha: fechap}).sort({id: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+
+    },
+
+    selectmaximo: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("maximo").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+
+    },
+
+    selectacumulado: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("acumulado").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+
+    },
+
+    selectpeso: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("pesopromedio").find().sort({fecha: 1}).toArray(function(err, result) {
               if (err) throw err;
               //console.log(result);
               res.send(result);
@@ -181,7 +245,31 @@ function insertmax(data){
         if (err) throw err;
         const dbo = db.db('mydb');
         const obj  = JSON.parse(data);
-        dbo.collection('maximos').insertOne(obj, function(err,res){
+        dbo.collection('maximo').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
+
+function insertacumulado(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('acumulado').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
+
+function insertpesopromedio(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('pesopromedio').insertOne(obj, function(err,res){
             if(err) throw err;
             db.close();
         });

@@ -50,6 +50,21 @@ app.get('/horario:fecha',(req, res ) => {
     database.selecthorario(req,res, fecha)
 })
 
+app.get('/maximos',(req, res ) => {
+    database.selectmaximo(req,res)
+})
+
+app.get('/acumulados',(req, res ) => {
+    database.selectacumulado(req,res)
+})
+
+app.get('/peso',(req, res ) => {
+    database.selectpeso(req,res)
+})
+
+
+
+
 
 /*
 // Ingresar datos de prueba a la DB
