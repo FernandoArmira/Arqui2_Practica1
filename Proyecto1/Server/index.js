@@ -10,7 +10,6 @@ app.listen(app.get('port'), () => {
     console.log(`Servidor corriendo en el puerto ${app.get('port')}`)
 })
 
-var hoy = new Date();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial

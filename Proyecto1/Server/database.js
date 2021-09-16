@@ -1,7 +1,6 @@
 //Funciones Base de datos
 
 //var dato = "";
-var fecha = new Date();
 
 //Conexion a BD
 //mongodb+srv://fernando:<password>@cluster0.tk4g5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
@@ -29,6 +28,7 @@ insertData: function(data){
 
 //Agregar fecha y hora del sistema
 datetime: function(data){
+    var fecha = new Date();
     const str = data.substring(0, data.length - 1);
     //console.log(str);
     const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
@@ -38,7 +38,7 @@ datetime: function(data){
 
 //Cal
 yesterday: function(){
-
+    var fecha = new Date();
     const str2 = (fecha.getDate()-1) + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear()
     //console.log(str2);
     return str2
@@ -65,8 +65,8 @@ select: function (req, res, datep, i1, i2){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("medidas").find().toArray(function(err, result) {
-              if (err) throw err;
+            dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
+                if (err) throw err;
               //console.log(result);
               res.send(result);
               db.close();
