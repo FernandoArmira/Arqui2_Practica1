@@ -60,6 +60,19 @@ select: function (req, res, datep, i1, i2){
       });
 },
 
+    // Monitoreo de los datos
+    monitoreo: function(req, res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("medidas").find().toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+    },
 
     // Seleccionar todos los datos de un dia
 selectData: function(req, res, datep){

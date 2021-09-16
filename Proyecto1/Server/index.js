@@ -4,7 +4,7 @@ const app = express()
 
 const database = require('./database.js');
 
-app.set('port', 3000)
+app.set('port', 3001)
 
 app.listen(app.get('port'), () => {
     console.log(`Servidor corriendo en el puerto ${app.get('port')}`)
@@ -18,7 +18,7 @@ const SerialPort = require('serialport');
 const ReadLine  = require('@serialport/parser-readline');
 
 //Asignar el numero de puerto serial y baudrate
-const port = new SerialPort('COM4',{baudRate: 9600});
+const port = new SerialPort('COM5',{baudRate: 9600});
 const parser = port.pipe(new ReadLine({delimiter: '\n'}));
 
 //Lectura de datos enviados de arduino
@@ -27,8 +27,8 @@ port.on("open",() => {
 });
 
 parser.on("data", data =>{
-    //console.log(data);
-    //database.insertData(database.datetime(data)))
+    console.log(data);
+    database.insertData(database.datetime(data))
 });
 
 // Funcion que analiza los datos en la coleccion tomadas del dia anterior
@@ -61,6 +61,11 @@ app.get('/acumulados',(req, res ) => {
 app.get('/peso',(req, res ) => {
     database.selectpeso(req,res)
 })
+
+app.get('/monitoreo',(req, res ) => {
+    database.monitoreo(req,res)
+})
+
 
 
 
