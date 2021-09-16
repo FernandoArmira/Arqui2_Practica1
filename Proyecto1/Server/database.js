@@ -152,7 +152,7 @@ selectData: function(req, res, datep){
                         console.log(tiempototal.toFixed(2))
                         console.log(contador)
 
-                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  tiempototal.toFixed(2)  + "}"
+                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
                         insertdata2(dato)
 
                         if(tiempototal >= maximo){ //maximo de tiempo seguido que el usuario uso la silla
@@ -218,7 +218,7 @@ selectData: function(req, res, datep){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("maximo").find().sort({fecha: 1}).toArray(function(err, result) {
+            dbo.collection("maximo").find().sort({fecha: -1}).limit(7).toArray(function(err, result) {
               if (err) throw err;
               //console.log(result);
               res.send(result);
@@ -227,12 +227,12 @@ selectData: function(req, res, datep){
           });
 
     },
-
+    
     selectacumulado: function(req,res){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("acumulado").find().sort({fecha: 1}).toArray(function(err, result) {
+            dbo.collection("acumulado").find().sort({fecha: -1}).limit(7).toArray(function(err, result) {
               if (err) throw err;
               //console.log(result);
               res.send(result);
@@ -341,6 +341,19 @@ selectData: function(req, res, datep){
 
           });
 
+    },
+
+    pesoultimodato: function(req, res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).sort({fecha: -1}).limit(1).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send("{\"peso\": " + result[0].peso + "}");
+              db.close();
+            });
+          });
     },
 
 

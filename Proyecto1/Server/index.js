@@ -57,18 +57,18 @@ app.get('/horario:fecha',(req, res ) => {
     database.selecthorario(req,res, fecha)
 })
 
-//tiempos de uso maximo seguido sin levantarse de la silla por dia
+//tiempos de uso maximo seguido sin levantarse de la silla por dia - limit 7 
 app.get('/maximos',(req, res ) => {
     database.selectmaximo(req,res)
 })
 
-//tiempo total de uso de la silla por dia - horas acumuladas
+//tiempo total de uso de la silla por dia - horas acumuladas - limit 7 
 app.get('/acumulados',(req, res ) => {
     database.selectacumulado(req,res)
 })
 
 //peso promedio tomado por dia
-app.get('/peso',(req, res ) => {
+app.get('/pesopromedio',(req, res ) => {
     database.selectpeso(req,res)
 })
 
@@ -95,6 +95,11 @@ app.get('/promediolevantadas',(req, res ) => {
 //promedio del tiempo que se uso la silla por dia
 app.get('/promediouso',(req, res ) => {
     database.promediotiempousado(req,res)
+})
+
+//ultimo dato de peso marcado aunque no este sentado el usuario marcar 0
+app.get('/peso',(req, res ) => {
+    database.pesoultimodato(req,res)
 })
 
 
