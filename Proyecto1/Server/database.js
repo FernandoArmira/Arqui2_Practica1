@@ -66,7 +66,7 @@ select: function (req, res, datep, i1, i2){
             if (err) throw err;
             var dbo = db.db("mydb");
             dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
-                if (err) throw err;
+              if (err) throw err;
               //console.log(result);
               res.send(result);
               db.close();
@@ -108,6 +108,8 @@ selectData: function(req, res, datep){
                 maximo = 0
                 acumulado = 0
                 pesopromedio = 0
+                nlevantamientos = 0
+                minfinal = 0
 
                 for(var i =0;i<result.length;i++){
                     if(result[i].sentado != "0"){
@@ -145,6 +147,8 @@ selectData: function(req, res, datep){
                         tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
                         tiempototal = tiempo2 - tiempo1 // minutos
 
+                        minfinal = parseInt(split2[1],10)
+
                         console.log(tiempototal.toFixed(2))
                         console.log(contador)
 
@@ -158,8 +162,10 @@ selectData: function(req, res, datep){
                         acumulado = acumulado + tiempototal // acumulado del tiempo que el usuario uso la silla
 
                         contador++
+                        nlevantamientos = contador
                     }
                 }
+                    
                     console.log((maximo/60).toFixed(2)) //horas
                     dato = "{\"fecha\": \"" + datap  + "\", \"maximo\": " + (maximo/60).toFixed(2) + "}"
                     insertmax(dato)
@@ -170,6 +176,20 @@ selectData: function(req, res, datep){
                     console.log((pesopromedio/contador).toFixed(2))
                     dato = "{\"fecha\": \"" + datap  + "\", \"peso\": " + (pesopromedio/contador).toFixed(2) + "}"
                     insertpesopromedio(dato)
+
+                    //console.log(minfinal)
+
+                    if(minfinal == 59){
+                        console.log(nlevantamientos-1)
+                        dato = "{\"fecha\": \"" + datap  + "\", \"nlevantadas\": " + (nlevantamientos-1) + "}"
+                        insertlevantadas(dato)
+
+                    } else{
+                        console.log(nlevantamientos)
+                        dato = "{\"fecha\": \"" + datap  + "\", \"nlevantadas\": " + nlevantamientos + "}"
+                        insertlevantadas(dato)
+                    }
+                    
                     db.close()
                 });
             }
@@ -234,7 +254,94 @@ selectData: function(req, res, datep){
             });
           });
 
-    }
+    },
+
+    tiempototal: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            tiempototal = 0
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("acumulado").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              //res.send(result);
+              tiempototal = 0
+              for(var i =0;i<result.length;i++){
+                tiempototal = tiempototal + result[i].acumulado
+              }
+              //console.log(tiempototal)
+
+              res.send("{\"tiempototal\": " + (tiempototal).toFixed(2) + "}")
+
+              db.close();
+              
+            });
+
+          });
+
+    },
+
+    selectnlevantadas: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("levantadas").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              res.send(result);
+              db.close();
+            });
+          });
+
+    },
+
+    promediolevantadas: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("levantadas").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              //res.send(result);
+              total = 0
+              for(var i =0;i<result.length;i++){
+                total = total + result[i].nlevantadas
+              }
+              //console.log((total/result.length).toFixed(2))
+
+              res.send("{\"promediolevantadas\": " + (total/result.length).toFixed(2) + "}")
+
+              db.close();
+              
+            });
+
+          });
+
+    },
+
+    promediotiempousado: function(req,res){
+        MongoClient.connect(url, function(err, db) {
+            if (err) throw err;
+            var dbo = db.db("mydb");
+            dbo.collection("acumulado").find().sort({fecha: 1}).toArray(function(err, result) {
+              if (err) throw err;
+              //console.log(result);
+              //res.send(result);
+              total = 0
+              for(var i =0;i<result.length;i++){
+                total = total + result[i].acumulado
+              }
+              //console.log((total/result.length).toFixed(2))
+
+              res.send("{\"promediotiempo\": " + (total/result.length).toFixed(2) + "}")
+
+              db.close();
+              
+            });
+
+          });
+
+    },
 
 
 
@@ -283,6 +390,18 @@ function insertpesopromedio(data){
         const dbo = db.db('mydb');
         const obj  = JSON.parse(data);
         dbo.collection('pesopromedio').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
+
+function insertlevantadas(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('levantadas').insertOne(obj, function(err,res){
             if(err) throw err;
             db.close();
         });
