@@ -1025,7 +1025,31 @@ selectData: function(req, res, datep){
 
     },
 
+    insertConfig: function(data){
+      MongoClient.connect(url,function(err, db){
+          if (err) throw err;
+          const dbo = db.db('mydb');
+          const obj  = JSON.parse(data);
+          dbo.collection('configuracion').insertOne(obj, function(err,res){
+              if(err) throw err;
+              db.close();
+          });
+      });
+  },
 
+  selectchair: function(req, res, user){
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("configuracion").find({user: user}).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          res.send(result);
+          db.close();
+        });
+      });
+},
+  
 
 }
 

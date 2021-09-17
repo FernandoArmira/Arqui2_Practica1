@@ -4,6 +4,11 @@ const app = express()
 
 const database = require('./database.js');
 
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 app.set('port', 3001)
 
 app.listen(app.get('port'), () => {
@@ -101,4 +106,27 @@ app.get('/peso',(req, res ) => {
 //tiempo total que se usa la silla por dia
 app.get('/tiempouso',(req, res ) => {
     database.tiempousado(req,res)
+})
+
+//Registrar datos de la silla
+app.post('/addchair', (req, res) => {
+    var id = req.body.id
+    var ubicacion = req.body.ubicacion
+    var user = req.body.user
+    res.send('POST request to the homepage');
+    console.log("post")
+    console.log(id)
+    console.log(ubicacion)
+    console.log(user)
+
+    dato = "{ \"id\": \"" + id +  "\" ,\"ubicacion\": \"" + ubicacion + "\" ,\"user\": \"" + user +"\"}"
+
+    database.insertConfig(dato)
+
+  });
+
+//Seleccionar la silla por nombre de usuario registrado
+app.get('/selectchair:user',(req, res ) => {
+    const {user} = req.params;
+    database.selectchair(req,res, user)
 })
