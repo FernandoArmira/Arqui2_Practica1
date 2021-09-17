@@ -34,15 +34,16 @@ parser.on("data", data =>{
 //console.log(database.yesterday())
 database.analyzedata(database.yesterday());
 
+
 // Rutas
 app.get('/',(req, res ) => {
     res.send("Proyecto 1 Arqui 2")
-    /*
+    
     // Ingresar datos de prueba a la DB
     prueba = "{\"sentado\": 0, \"peso\": 150}";
     console.log(prueba);
     database.insertData(database.datetime(prueba))
-    */
+    
 })
 
 //datos tomados de cada dia /datosdia12-9-2021
@@ -57,17 +58,17 @@ app.get('/horario:fecha',(req, res ) => {
     database.selecthorario(req,res, fecha)
 })
 
-//tiempos de uso maximo seguido sin levantarse de la silla por dia - limit 7 
+//tiempo de uso maximo seguido sin levantarse de la silla por dia
 app.get('/maximos',(req, res ) => {
     database.selectmaximo(req,res)
 })
 
-//tiempo total de uso de la silla por dia - horas acumuladas - limit 7 
+//menor tiempo acumulado de uso de la silla por dia
 app.get('/acumulados',(req, res ) => {
     database.selectacumulado(req,res)
 })
 
-//peso promedio tomado por dia
+//peso promedio tomado por dia desde dia 1
 app.get('/pesopromedio',(req, res ) => {
     database.selectpeso(req,res)
 })
@@ -82,18 +83,13 @@ app.get('/totaltiempo',(req, res ) => {
     database.tiempototal(req,res)
 })
 
-//veces que se levanto el usuario de la silla por dia
-app.get('/levantadas',(req, res ) => {
-    database.selectnlevantadas(req,res)
-})
-
-//promedio de las veces que se levanto el usuario por dia
-app.get('/promediolevantadas',(req, res ) => {
+//promedio veces que se levanto el usuario de la silla por dia
+app.get('/levantadaspromedio',(req, res ) => {
     database.promediolevantadas(req,res)
 })
 
-//promedio del tiempo que se uso la silla por dia
-app.get('/promediouso',(req, res ) => {
+//promedio del tiempo que se usa la silla por dia
+app.get('/usopromedio',(req, res ) => {
     database.promediotiempousado(req,res)
 })
 
@@ -101,5 +97,4 @@ app.get('/promediouso',(req, res ) => {
 app.get('/peso',(req, res ) => {
     database.pesoultimodato(req,res)
 })
-
 

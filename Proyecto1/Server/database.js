@@ -30,9 +30,11 @@ insertData: function(data){
 datetime: function(data){
     var fecha = new Date();
     const str = data.substring(0, data.length - 1);
+
     //console.log(str);
     const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
     console.log(str2);
+
     return str2
 },
 
@@ -111,6 +113,14 @@ selectData: function(req, res, datep){
                 nlevantamientos = 0
                 minfinal = 0
 
+                split0 = datap.split("-")
+
+                //var dateStr = '9/16/2021';
+                var dateStr = split0[1] + "/" + split0[0] + "/" + split0[2];
+                var day = getDayName(dateStr, "nl-NL"); // Gives back 'Vrijdag' which is Dutch for Friday.
+                console.log(day)
+                
+
                 for(var i =0;i<result.length;i++){
                     if(result[i].sentado != "0"){
                         estado = "sentado"
@@ -152,7 +162,7 @@ selectData: function(req, res, datep){
                         console.log(tiempototal.toFixed(2))
                         console.log(contador)
 
-                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
+                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"dia\": \"" + day + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
                         insertdata2(dato)
 
                         if(tiempototal >= maximo){ //maximo de tiempo seguido que el usuario uso la silla
@@ -167,10 +177,10 @@ selectData: function(req, res, datep){
                 }
                     
                     console.log((maximo/60).toFixed(2)) //horas
-                    dato = "{\"fecha\": \"" + datap  + "\", \"maximo\": " + (maximo/60).toFixed(2) + "}"
+                    dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day + "\", \"maximo\": " + (maximo/60).toFixed(2) + "}"
                     insertmax(dato)
                     console.log((acumulado/60).toFixed(2)) //horas
-                    dato = "{\"fecha\": \"" + datap  + "\", \"acumulado\": " + (acumulado/60).toFixed(2) + "}"
+                    dato = "{\"fecha\": \"" + datap  + "\", \"dia\": \"" + day + "\", \"acumulado\": " + (acumulado/60).toFixed(2) + "}"
                     insertacumulado(dato)
                     //console.log(contador)
                     console.log((pesopromedio/contador).toFixed(2))
@@ -181,12 +191,12 @@ selectData: function(req, res, datep){
 
                     if(minfinal == 59){
                         console.log(nlevantamientos-1)
-                        dato = "{\"fecha\": \"" + datap  + "\", \"nlevantadas\": " + (nlevantamientos-1) + "}"
+                        dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day  + "\", \"nlevantadas\": " + (nlevantamientos-1) + "}"
                         insertlevantadas(dato)
 
                     } else{
                         console.log(nlevantamientos)
-                        dato = "{\"fecha\": \"" + datap  + "\", \"nlevantadas\": " + nlevantamientos + "}"
+                        dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day   + "\", \"nlevantadas\": " + nlevantamientos + "}"
                         insertlevantadas(dato)
                     }
                     
@@ -216,28 +226,161 @@ selectData: function(req, res, datep){
 
     selectmaximo: function(req,res){
         MongoClient.connect(url, function(err, db) {
+            var array = []
+
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("maximo").find().sort({fecha: -1}).limit(7).toArray(function(err, result) {
+            dbo.collection("maximo").find({dia: 'Sun'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
               if (err) throw err;
-              //console.log(result);
-              res.send(result);
-              db.close();
+              //console.log(result[0]);
+              array[0] = result[0]
+              //res.send(result);
             });
+
+            dbo.collection("maximo").find({dia: 'Mon'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[1] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find({dia: 'Tue'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[2] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find({dia: 'Wed'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[3] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find({dia: 'Thu'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[4] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find({dia: 'Fri'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[5] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find({dia: 'Sat'}).sort({maximo: -1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[6] = result[0]
+                //res.send(result);
+                res.send(array)
+                db.close();
+              });
+              
           });
 
     },
-    
+
     selectacumulado: function(req,res){
         MongoClient.connect(url, function(err, db) {
+            var array = []
+            
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("acumulado").find().sort({fecha: -1}).limit(7).toArray(function(err, result) {
+            dbo.collection("acumulado").find({dia: 'Sun'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
               if (err) throw err;
-              //console.log(result);
-              res.send(result);
-              db.close();
+              //console.log(result[0]);
+              array[0] = result[0]
+              //res.send(result);
             });
+
+            dbo.collection("acumulado").find({dia: 'Mon'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[1] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find({dia: 'Tue'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[2] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find({dia: 'Wed'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[3] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find({dia: 'Thu'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[4] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find({dia: 'Fri'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[5] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find({dia: 'Sat'}).sort({acumulado: 1}).limit(1).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                array[6] = result[0]
+                //res.send(result);
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("acumulado").find().toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                media = 0
+                for(var i=0;i<result.length;i++){
+                    media = media + result[i].acumulado
+                }
+
+                //console.log((media/result.length).toFixed(2))
+
+                dato = "{\"media\": " + (media/result.length).toFixed(2) + "}"
+                const obj  = JSON.parse(dato);
+
+                array[7] = obj
+                //res.send(result);
+                res.send(array)
+                db.close();
+              });
+              
           });
 
     },
@@ -281,65 +424,395 @@ selectData: function(req, res, datep){
 
     },
 
-    selectnlevantadas: function(req,res){
-        MongoClient.connect(url, function(err, db) {
-            if (err) throw err;
-            var dbo = db.db("mydb");
-            dbo.collection("levantadas").find().sort({fecha: 1}).toArray(function(err, result) {
-              if (err) throw err;
-              //console.log(result);
-              res.send(result);
-              db.close();
-            });
-          });
-
-    },
-
     promediolevantadas: function(req,res){
         MongoClient.connect(url, function(err, db) {
+        var array = []
+            
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("levantadas").find().sort({fecha: 1}).toArray(function(err, result) {
+            dbo.collection("levantadas").find({dia: 'Sun'}).toArray(function(err, result) {
               if (err) throw err;
-              //console.log(result);
-              //res.send(result);
+              //console.log(result[0]);
               total = 0
+              dia = "Sun"
+              prom = 0
               for(var i =0;i<result.length;i++){
                 total = total + result[i].nlevantadas
+                dia = result[i].dia
               }
-              //console.log((total/result.length).toFixed(2))
+              //console.log(tiempototal)
+              prom = (total/result.length).toFixed(2)
 
-              res.send("{\"promediolevantadas\": " + (total/result.length).toFixed(2) + "}")
-
-              db.close();
-              
+              dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+                
+              if(result.length == 0){
+                array[0] = null
+            }else{
+                const obj  = JSON.parse(dato);
+                array[0] = obj
+            }
+              //res.send(array)
+            //db.close();
+              //res.send(result);
             });
+            dbo.collection("levantadas").find({dia: 'Mon'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Mon"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia  +  "\" ,\"promediolevantadas\": " + prom + "}"
+  
+                  
+                if(result.length == 0){
+                    array[1] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[1] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("levantadas").find({dia: 'Tue'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Tue"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+                  
+                if(result.length == 0){
+                    array[2] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[2] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("levantadas").find({dia: 'Wed'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Wed"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+     
+                  
+                if(result.length == 0){
+                    array[3] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[3] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("levantadas").find({dia: 'Thu'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Thu"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
 
-          });
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+       
+
+                if(result.length == 0){
+                    array[4] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[4] = obj
+                }
+                  
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("levantadas").find({dia: 'Fri'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Fri"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+
+
+                if(result.length == 0){
+                    array[5] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[5] = obj
+                }
+                  
+                
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("levantadas").find({dia: 'Sat'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Sat"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].nlevantadas
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"promediolevantadas\": " + prom + "}"
+  
+                
+                if(result.length == 0){
+                    array[6] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[6] = obj
+                }
+                  
+                
+                res.send(array)
+                db.close();
+                //res.send(result);
+              });
+        });
 
     },
 
     promediotiempousado: function(req,res){
         MongoClient.connect(url, function(err, db) {
+        var array = []
+            
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("acumulado").find().sort({fecha: 1}).toArray(function(err, result) {
+            dbo.collection("acumulado").find({dia: 'Sun'}).toArray(function(err, result) {
               if (err) throw err;
-              //console.log(result);
-              //res.send(result);
+              //console.log(result[0]);
               total = 0
+              dia = "Sun"
+              prom = 0
               for(var i =0;i<result.length;i++){
                 total = total + result[i].acumulado
+                dia = result[i].dia
               }
-              //console.log((total/result.length).toFixed(2))
+              //console.log(tiempototal)
+              prom = (total/result.length).toFixed(2)
 
-              res.send("{\"promediotiempo\": " + (total/result.length).toFixed(2) + "}")
-
-              db.close();
-              
+              dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+                
+              if(result.length == 0){
+                array[0] = null
+            }else{
+                const obj  = JSON.parse(dato);
+                array[0] = obj
+            }
+              //res.send(array)
+            //db.close();
+              //res.send(result);
             });
+            dbo.collection("acumulado").find({dia: 'Mon'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Mon"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia  +  "\" ,\"tiempopromedio\": " + prom + "}"
+  
+                  
+                if(result.length == 0){
+                    array[1] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[1] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("acumulado").find({dia: 'Tue'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Tue"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+                  
+                if(result.length == 0){
+                    array[2] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[2] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("acumulado").find({dia: 'Wed'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Wed"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+     
+                  
+                if(result.length == 0){
+                    array[3] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[3] = obj
+                }
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("acumulado").find({dia: 'Thu'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Thu"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
 
-          });
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+       
+
+                if(result.length == 0){
+                    array[4] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[4] = obj
+                }
+                  
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("acumulado").find({dia: 'Fri'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Fri"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+
+
+                if(result.length == 0){
+                    array[5] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[5] = obj
+                }
+                  
+                
+                //res.send(array)
+              //db.close();
+                //res.send(result);
+              });
+              dbo.collection("acumulado").find({dia: 'Sat'}).toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                total = 0
+                dia = "Sat"
+                prom = 0
+                for(var i =0;i<result.length;i++){
+                  total = total + result[i].acumulado
+                  dia = result[i].dia
+                }
+                //console.log(tiempototal)
+                prom = (total/result.length).toFixed(2)
+  
+                dato = "{ \"dia\": \"" + dia +  "\" ,\"tiempopromedio\": " + prom + "}"
+  
+                
+                if(result.length == 0){
+                    array[6] = null
+                }else{
+                    const obj  = JSON.parse(dato);
+                    array[6] = obj
+                }
+                  
+                
+                res.send(array)
+                db.close();
+                //res.send(result);
+              });
+        });
 
     },
 
@@ -421,6 +894,15 @@ function insertlevantadas(data){
     });
 }
 
+function getDayName(dateStr, locale)
+{
+    var date = new Date(dateStr);
+    return date.toLocaleDateString(locale, { weekday: 'long' });        
+}
+
+/*var dateStr = '9/18/2021';
+var day = getDayName(dateStr, "nl-NL"); // Gives back 'Vrijdag' which is Dutch for Friday.
+console.log(day)*/
 
 /*app.get('/dato:fecha',(req, res ) => {
     const {fecha} = req.params;
