@@ -12,7 +12,7 @@ import {
   Typography,
   TablePagination,
 } from "@material-ui/core";
-import { URL_API_BACKEND } from "../config";
+
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -23,8 +23,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Monitoreo = () => {
-  const [data, setData] = useState([]);
+export const Monitoreo = ({data}) => {
+  
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -37,15 +37,7 @@ export const Monitoreo = () => {
     setPage(0);
   };
 
-  const getData = async () => {
-    const response = await fetch(`${URL_API_BACKEND}/datosdia`);
-    const allData = await response.json();
-    setData(allData);
-  };
-
-  useEffect(() => {
-    getData().catch((error) => console.error(error));
-  }, []);
+  
 
   return (
     <Grid container spacing={3}>
@@ -84,7 +76,7 @@ export const Monitoreo = () => {
                     <TableRow hover role="checkbox" tabIndex={-1} key={row._id}>
                       <TableCell>{row.fecha}</TableCell>
                       <TableCell>{row.hora}</TableCell>
-                      <TableCell>{row.sentado}</TableCell>
+                      <TableCell>{row.sentado == 0 && "Libre." || row.sentado == 1 && "Sentado bien." || row.sentado == 2 && "Sentado mal."}</TableCell>
                       <TableCell>{row.peso}</TableCell>
                     </TableRow>
                   ))}
