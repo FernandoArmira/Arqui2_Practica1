@@ -1,21 +1,3 @@
-{/**
-horariouso: function (req, res) {
-    MongoClient.connect(url, function (err, db) {
-      if (err) throw err;
-      var dbo = db.db("mydb");
-      dbo
-        .collection("horarios")
-        .find({
-          $or: [{dia:"Mon"}, {dia:"Tue"}, {dia:"Sun"}, {dia:"Fri"}, {dia:"Sat"}, {dia:"Thu"}, {dia:"Wed"}] })
-        .toArray(function (err, result) {
-          if (err) throw err;
-          //console.log(result);
-          res.send(result);
-          db.close();
-        });
-    });
-  },
-*/}
 import React from "react";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";

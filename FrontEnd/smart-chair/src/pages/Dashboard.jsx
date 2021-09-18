@@ -106,6 +106,15 @@ export const Dashboard = ({
 
   return (
     <>
+    <Typography
+        component="h1"
+        variant="h3"
+        color="inherit"
+        noWrap
+        align="center"
+      >
+        DASHBOARD
+      </Typography>
       <Grid container spacing={3}>
         <Grid item md={4} lg={6}>
           <Typography
@@ -118,25 +127,13 @@ export const Dashboard = ({
             Total Tiempo en Uso: {dataDashboardTTime.tiempototal}
           </Typography>
         </Grid>
-
-        {/* <Grid item md={4} lg={6}>
-          <Typography
-            component="h1"
-            variant="h5"
-            color="inherit"
-            noWrap
-            align="center"
-          >
-            Tiempo de uso promedio por dia: {dataDashboardPromedioUseTime.promediotiempo}
-          </Typography>
-        </Grid> */}
       </Grid>
 
       <br></br>
 
       <Typography
         component="h1"
-        variant="h3"
+        variant="h4"
         color="inherit"
         noWrap
         align="center"
@@ -156,7 +153,7 @@ export const Dashboard = ({
 
       <Typography
         component="h1"
-        variant="h3"
+        variant="h4"
         color="inherit"
         noWrap
         align="center"
@@ -174,7 +171,7 @@ export const Dashboard = ({
 
       <Typography
         component="h1"
-        variant="h3"
+        variant="h4"
         color="inherit"
         noWrap
         align="center"
@@ -188,9 +185,11 @@ export const Dashboard = ({
         </Grid>
       </Grid>
 
+      <br></br>
+
       <Typography
         component="h1"
-        variant="h3"
+        variant="h4"
         color="inherit"
         noWrap
         align="center"

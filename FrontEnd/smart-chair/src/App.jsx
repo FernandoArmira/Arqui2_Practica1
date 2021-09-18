@@ -25,6 +25,8 @@ const useStyles = makeStyles((theme) => ({
 
 export const App = () => {
   const [dataMonitor, setDataMonitor] = React.useState([]);
+  const [dataHistorial, setDataHistorial] = React.useState([]);
+  const [dataHistorialUso, setDataHistorialUso] = React.useState([]);
   const [dataDashboard, setDataDashboard] = React.useState([]);
   const [dataDashboardTotalTime, setDataDashboardTotalTime] = React.useState(
     []
@@ -79,17 +81,25 @@ export const App = () => {
     setDataDashboardPromedioLevanta(allData);
   };
 
-  React.useEffect(() => {
-    // const interval = setInterval(() => {
-    // }, 90000);
-    getDataMonitor().catch((error) => console.error(error));
-    getDataDashboard().catch((error) => console.error(error));
-    getDataDashboardTotalTime().catch((error) => console.error(error));
-    getDataDashboardPromedioUseTime().catch((error) => console.error(error));
-    getDataDashboardTTime().catch((error) => console.error(error));
-    getDataDashboardPromedioLevanta().catch((error) => console.error(error));
+  // const getDataHistorial = async () => {
+  //   const response = await fetch(`${URL_API_BACKEND}/historialuso`);
+  //   const allData = await response.json();
+  //   setDataHistorial(allData);
+  // };
 
-    // return () => clearInterval(interval);
+  React.useEffect(() => {
+     const interval = setInterval(() => {
+      getDataMonitor().catch((error) => console.error(error));
+      getDataDashboard().catch((error) => console.error(error));
+      getDataDashboardTotalTime().catch((error) => console.error(error));
+      getDataDashboardPromedioUseTime().catch((error) => console.error(error));
+      getDataDashboardTTime().catch((error) => console.error(error));
+      getDataDashboardPromedioLevanta().catch((error) => console.error(error));
+     }, 90000);
+    
+    //getDataHistorial().catch((error) => console.error(error));
+
+     return () => clearInterval(interval);
   }, []);
 
   return (
@@ -123,6 +133,11 @@ export const App = () => {
                   dataDashboardTotalTime={dataDashboardTotalTime}
                   dataDashboardPromedioUseTime={dataDashboardPromedioUseTime}
                   dataDashboardPromedioLevanta={dataDashboardPromedioLevanta}
+                  dataHistorial={dataHistorial}
+                  dataMonitor={dataMonitor}
+                  dataHistorialUso={dataHistorialUso}
+                  setDataHistorialUso={setDataHistorialUso}
+                  setDataHistorial={setDataHistorial}
                 />
               </Route>
               <Route exact path="/">
