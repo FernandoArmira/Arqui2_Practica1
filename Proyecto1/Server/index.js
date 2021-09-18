@@ -15,6 +15,11 @@ app.listen(app.get('port'), () => {
     console.log(`Servidor corriendo en el puerto ${app.get('port')}`)
 })
 
+var estado = 0
+var estadosentado =""
+var cronometro
+var tiempo = "0:0:0"
+var contador = 0
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial
@@ -33,6 +38,27 @@ port.on("open",() => {
 parser.on("data", data =>{
     console.log(data);
     database.insertData(database.datetime(data))
+    estadosilla(data)
+    if(estado != 0 && contador == 0){
+        if(estado ==1){
+            estadosentado = "bien sentado"
+        }else if(estado == 2 || estado == 3){
+            estadosentado = "mal sentado"
+        }
+        carga()
+        contador++
+    } else if(estado != 0 && contador != 0){
+        if(estado ==1){
+            estadosentado = "bien sentado"
+        }else if(estado == 2 || estado == 3){
+            estadosentado = "mal sentado"
+        }
+    }
+    else if(estado == 0){
+        estadosentado = "no sentado"
+        detenerse()
+        contador = 0
+    }
 });
 
 // Funcion que analiza los datos en la coleccion tomadas del dia anterior
@@ -43,12 +69,10 @@ database.analyzedata(database.yesterday());
 // Rutas
 app.get('/',(req, res ) => {
     res.send("Proyecto 1 Arqui 2")
-    
     // Ingresar datos de prueba a la DB
-    prueba = "{\"sentado\": 0, \"peso\": 150}";
-    console.log(prueba);
-    database.insertData(database.datetime(prueba))
-    
+    //prueba = "{\"sentado\":" + id + ", \"peso\": 150}";
+    //console.log(prueba);
+    //database.insertData(database.datetime(prueba))    
 })
 
 //datos tomados de cada dia /datosdia12-9-2021
@@ -130,3 +154,80 @@ app.get('/selectchair:user',(req, res ) => {
     const {user} = req.params;
     database.selectchair(req,res, user)
 })
+
+//Tiempo real
+app.get('/realtime',(req, res ) => {
+    dato = "{\"estado\": \"" + estadosentado + "\", \"tiempo\": \"" + tiempo +"\"}"
+    const obj  = JSON.parse(dato);
+    res.send(obj)
+})
+
+/////////////////////////////////////////////////Funciones tiempo real////////////////////////////////////////
+
+function detenerse(){
+    clearInterval(cronometro);
+    tiempo="0:0:0"
+}
+
+
+function carga()
+{
+    contador_s =0;
+    contador_m =0;
+    cronometro = setInterval(
+        function(){
+            if(contador_s==60){
+                contador_s=0;
+                contador_m++;
+                //console.log(contador_m);
+            if(contador_m==60)
+                {
+                    contador_m=0;
+                }
+            }
+            //console.log(contador_s);
+            console.log("0:" + contador_m + ":" + contador_s)
+            tiempo= "0:" + contador_m + ":" + contador_s
+            contador_s++;
+        }
+        ,1000);
+}
+
+function estadosilla(data){
+    const obj  = JSON.parse(data);
+    //console.log(obj.sentado)
+    estado = obj.sentado
+    console.log(estado)
+}
+
+//Pruebas tiemporeal
+/*
+app.post('/', (req, res) => {
+    var id = req.body.id
+    prueba = "{\"sentado\":" + id + ", \"peso\": 160}";
+    console.log(prueba);
+    database.insertData(database.datetime(prueba))
+    res.send("Dato insertado")
+    estadosilla(prueba)
+    if(estado != 0 && contador == 0){
+        if(estado ==1){
+            estadosentado = "bien sentado"
+        }else if(estado == 2 || estado == 3){
+            estadosentado = "mal sentado"
+        }
+        carga()
+        contador++
+    } else if(estado != 0 && contador != 0){
+        if(estado ==1){
+            estadosentado = "bien sentado"
+        }else if(estado == 2 || estado == 3){
+            estadosentado = "mal sentado"
+        }
+    }
+    else if(estado == 0){
+        estadosentado = "no sentado"
+        detenerse()
+        contador = 0
+    }
+});
+*/
