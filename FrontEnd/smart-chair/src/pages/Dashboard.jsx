@@ -25,6 +25,7 @@ export const Dashboard = ({
   dataDashboardPromedioLevanta = [],
   dataUsuario,
   setDataUsuario,
+  dataRealTime = []
 }) => {
   const primerosDiez = dataDashboard.slice(0, 10);
   const data = {
@@ -129,6 +130,46 @@ export const Dashboard = ({
       >
         DASHBOARD
       </Typography>
+
+      <br></br>
+      <br></br>
+
+      <Typography
+        component="h1"
+        variant="h4"
+        color="inherit"
+        noWrap
+        align="center"
+      >
+        DATOS EN TIEMPO REAL
+      </Typography>
+
+      <br></br>
+
+      <Grid container spacing={3}>
+        <Grid item md={3} lg={6}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            align="center"
+          >
+            Estado: {dataRealTime.map(({estado}) => estado)}
+          </Typography>
+        </Grid>
+        <Grid item md={3} lg={6}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            align="center"
+          >
+            Tiempo: {dataRealTime.map(({tiempo}) => tiempo)}
+          </Typography>
+        </Grid>
+      </Grid>
 
       <br></br>
       <br></br>

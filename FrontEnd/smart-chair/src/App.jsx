@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const App = () => {
+  const [dataRealTime, setDataRealTime] = React.useState([]);
   const [dataUsuario, setDataUsuario] = React.useState([]);
   const [dataMonitor, setDataMonitor] = React.useState([]);
   const [dataHistorial, setDataHistorial] = React.useState([]);
@@ -64,6 +65,12 @@ export const App = () => {
     setDataDashboardTotalTime(allData);
   };
 
+  const getDataRealTime = async () => {
+    const response = await fetch(`${URL_API_BACKEND}/realtime`);
+    const allData = await response.json();
+    setDataRealTime([allData]);
+  };
+
   const getDataDashboardTTime = async () => {
     const response = await fetch(`${URL_API_BACKEND}/totaltiempo`);
     const allData = await response.json();
@@ -90,6 +97,7 @@ export const App = () => {
       getDataDashboardPromedioUseTime().catch((error) => console.error(error));
       getDataDashboardTTime().catch((error) => console.error(error));
       getDataDashboardPromedioLevanta().catch((error) => console.error(error));
+      getDataRealTime().catch((error) => console.error(error));
     }, 90000);
 
     return () => clearInterval(interval);
@@ -119,6 +127,7 @@ export const App = () => {
                   dataDashboardPromedioLevanta={dataDashboardPromedioLevanta}
                   dataUsuario={dataUsuario}
                   setDataUsuario={setDataUsuario}
+                  dataRealTime={dataRealTime}
                 />
               </Route>
               <Route exact path="/monitoreo">
@@ -135,7 +144,7 @@ export const App = () => {
                   dataMonitor={dataMonitor}
                   dataHistorialUso={dataHistorialUso}
                   setDataHistorialUso={setDataHistorialUso}
-                  setDataHistorial={setDataHistorial}
+                  setDataHistorial={setDataHistorial}                  
                 />
               </Route>
               <Route exact path="/">
