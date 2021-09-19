@@ -50,7 +50,7 @@ export const Reportes = ({
   dataMonitor = [],
   dataHistorialUso = [],
   setDataHistorialUso,
-  setDataHistorial,
+  setDataHistorial,  
 }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -217,9 +217,7 @@ export const Reportes = ({
       },
     ],
   };
-  //console.log(dataHistorial)
-  //console.log(dataSpectro)
-
+ 
   const dataBar = {
     labels: dataDashboardPromedioLevanta
       .filter((row) => row !== null)

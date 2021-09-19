@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "@material-ui/core/styles";
 import { Line, Pie, Bar } from "react-chartjs-2";
-import Grid from "@material-ui/core/Grid";
+import { Grid, TextField, Button } from "@material-ui/core";
 
 import { Typography, Card, CardContent, IconButton } from "@material-ui/core";
 
@@ -23,6 +23,8 @@ export const Dashboard = ({
   dataDashboardPromedioUseTime = [],
   dataDashboardTTime = [],
   dataDashboardPromedioLevanta = [],
+  dataUsuario,
+  setDataUsuario,
 }) => {
   const primerosDiez = dataDashboard.slice(0, 10);
   const data = {
@@ -104,9 +106,21 @@ export const Dashboard = ({
     ],
   };
 
+  const handleSubmitSilla = async (event) => {
+    event.preventDefault();
+    const silla = event.target.silla.value;
+    const response = await fetch("http://localhost:3001/selectsilla", {
+      method: "POST",
+      body: JSON.stringify({id:silla}),
+      headers: { "Content-Type": "application/json" },
+    });
+    const datares = await response.json();
+    setDataUsuario(datares);
+  };
+
   return (
     <>
-    <Typography
+      <Typography
         component="h1"
         variant="h3"
         color="inherit"
@@ -115,6 +129,67 @@ export const Dashboard = ({
       >
         DASHBOARD
       </Typography>
+
+      <br></br>
+      <br></br>
+
+      <Typography
+        component="h1"
+        variant="h4"
+        color="inherit"
+        noWrap
+        align="center"
+      >
+        DATOS DE LA SILLA
+      </Typography>
+
+      <br></br>
+
+      <form onSubmit={handleSubmitSilla}>
+        <TextField name="silla" label="Id Silla" variant="outlined" type="text" required />
+        <Button type="submit">Enviar</Button>
+      </form>
+
+      <br></br>
+
+      <Grid container spacing={3}>
+        <Grid item md={3} lg={4}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            align="center"
+          >
+            Id Silla: {dataUsuario.map(({id}) => id)}
+          </Typography>
+        </Grid>
+        <Grid item md={3} lg={4}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            align="center"
+          >
+            Usuario: {dataUsuario.map(({user}) => user)}
+          </Typography>
+        </Grid>
+        <Grid item md={3} lg={4}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            align="center"
+          >
+            Ubicacion: {dataUsuario.map(({ubicacion}) => ubicacion)}
+          </Typography>
+        </Grid>
+      </Grid>
+
+      <br></br>
+
       <Grid container spacing={3}>
         <Grid item md={4} lg={6}>
           <Typography
