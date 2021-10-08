@@ -63,6 +63,7 @@ parser.on("data", data =>{
 
 // Funcion que analiza los datos en la coleccion tomadas del dia anterior
 //console.log(database.yesterday())
+//database.analyzedata("20-9-2021");
 database.analyzedata(database.yesterday());
 
 
