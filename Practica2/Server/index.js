@@ -17,13 +17,13 @@ app.listen(app.get('port'), () => {
 const SerialPort = require('serialport');
 const ReadLine  = require('@serialport/parser-readline');
 
-var serialport = new SerialPort("COM8", {
+var serialport = new SerialPort("COM7", {
   baudRate: 9600,
   dataBits: 8,
   parity: 'none',
   stopBits: 1,
   flowControl: false
-} );
+});
 
 const parser = serialport.pipe(new ReadLine({delimiter: '\n'}));
 
@@ -45,8 +45,8 @@ serialport.on('data', function(data) {
 
 
 parser.on("data", data =>{
-    console.log(data);
-    insertData(data);
+    console.log(data.toString());
+    //insertData(data); 
 });
 
 //Funcion insertar datos en la DB
