@@ -17,7 +17,7 @@ app.listen(app.get('port'), () => {
 const SerialPort = require('serialport');
 const ReadLine  = require('@serialport/parser-readline');
 
-var serialport = new SerialPort("COM7", {
+var serialport = new SerialPort("COM8", {
   baudRate: 9600,
   dataBits: 8,
   parity: 'none',
