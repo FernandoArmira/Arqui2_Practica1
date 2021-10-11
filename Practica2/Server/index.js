@@ -64,7 +64,7 @@ function insertData(data){
 
 function datetime(data){
     var fecha = new Date();
-    const str = data.substring(0, data.length - 1);
+    const str = data;
 
     //console.log(str);
     const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
@@ -77,6 +77,5 @@ function datetime(data){
 //Pruebas
 /*
 prueba = "{\"temperatura\": 26.10, \"viento\": 14.00, \"humedad\": 18.00,\"direccion\": -1,\"luz\": 322";
-console.log(prueba)
-console.log(datetime(prueba))
-insertData(datetime(prueba))*/
+console.log(prueba.toString())
+insertData(datetime(prueba.toString()))*/
