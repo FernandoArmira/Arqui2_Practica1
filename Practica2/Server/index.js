@@ -46,7 +46,7 @@ serialport.on('data', function(data) {
 
 parser.on("data", data =>{
     console.log(data.toString());
-    //insertData(data); 
+    insertData(data);
 });
 
 //Funcion insertar datos en la DB
