@@ -49,7 +49,11 @@ serialport.on('data', function(data) {
 parser.on("data", data =>{
     console.log(data.toString());
     insertData(datetime(data.toString()))
+    medias()
 });
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Funcion insertar datos en la DB
 function insertData(data){
@@ -58,6 +62,85 @@ function insertData(data){
         const dbo = db.db('mydb');
         const obj  = JSON.parse(data);
         dbo.collection('medidaspr2').insertOne(obj, function(err,res){
+            if(err) throw err;
+            db.close();
+        });
+    });
+}
+
+function datos(req, res){
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("medidaspr2").find().toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          res.send(result);
+          db.close();
+        });
+      });
+}
+
+function datosdia(req, res, datep){
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("medidaspr2").find({fecha: datep}).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          res.send(result);
+          db.close();
+        });
+      });
+}
+
+function medias(){
+    var temperatura = 0
+    var viento = 0
+    var humedad = 0
+    var luz = 0
+
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("medidaspr2").find().toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          for(var i=0; i < result.length; i++){
+              temperatura = temperatura + result[i].temperatura
+              viento = viento + result[i].viento
+              humedad = humedad + result[i].humedad
+              luz = luz + result[i].luz
+              //console.log(result[i].temperatura)
+              //console.log(result[i].viento)
+              //console.log(result[i].humedad)
+              //console.log(result[i].luz)
+          }
+
+        temperatura = temperatura / result.length
+        viento = viento / result.length
+        humedad = humedad / result.length
+        luz = luz / result.length
+        /*console.log(temperatura)
+        console.log(viento)
+        console.log(humedad)
+        console.log(luz)*/
+
+        dato = "{\"mediatemperatura\":" + temperatura.toFixed(2)  + ", \"mediaviento\": " + viento.toFixed(2) + ", \"mediahumedad\": " + humedad.toFixed(2) + ", \"medialuz\": " + luz.toFixed(2) +"}"
+        insertdata2(dato)
+
+        //res.send(result);
+        db.close();
+        });
+      });
+}
+
+function insertdata2(data){
+    MongoClient.connect(url,function(err, db){
+        if (err) throw err;
+        const dbo = db.db('mydb');
+        const obj  = JSON.parse(data);
+        dbo.collection('mediaspr2').insertOne(obj, function(err,res){
             if(err) throw err;
             db.close();
         });
@@ -76,8 +159,29 @@ function datetime(data){
 }
 
 
+//datos en general
+app.get('/datos',(req, res ) => {
+    datos(req,res)
+})
+
+
+//datos tomados de cada dia /datosdia12-9-2021
+app.get('/datosdia:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    datosdia(req,res, fecha)
+})
+
+/*
+//medias de las medidas
+app.get('/medias',(req, res ) => {
+    medias()
+})
+*/
+
+
 //Pruebas
 /*
 prueba = "{\"temperatura\": 26.10, \"viento\": 14.00, \"humedad\": 18.00,\"direccion\": -1,\"luz\": 322";
 console.log(prueba.toString())
-insertData(datetime(prueba.toString()))*/
+insertData(datetime(prueba.toString()))
+medias()*/
