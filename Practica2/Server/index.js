@@ -98,7 +98,9 @@ function medias(){
     var temperatura = 0
     var viento = 0
     var humedad = 0
-    var luz = 0
+    var est = ""
+    var contnublado = 0
+    var contdespejado = 0
 
     MongoClient.connect(url, function(err, db) {
         if (err) throw err;
@@ -110,7 +112,14 @@ function medias(){
               temperatura = temperatura + result[i].temperatura
               viento = viento + result[i].viento
               humedad = humedad + result[i].humedad
-              luz = luz + result[i].luz
+              est = result[i].estado
+              //console.log(est)
+
+              if(est = "despejado"){
+                  contdespejado = contdespejado + 1
+              }else if (est = "nublado"){
+                contnublado = contnublado + 1
+              }
               //console.log(result[i].temperatura)
               //console.log(result[i].viento)
               //console.log(result[i].humedad)
@@ -120,13 +129,20 @@ function medias(){
         temperatura = temperatura / result.length
         viento = viento / result.length
         humedad = humedad / result.length
-        luz = luz / result.length
+
+        if(contdespejado >= contnublado){
+            est = "despejado"
+        }else{
+            est = "nublado"
+        }
+        //luz = luz / result.length
+
         /*console.log(temperatura)
         console.log(viento)
         console.log(humedad)
         console.log(luz)*/
 
-        dato = "{\"mediatemperatura\":" + temperatura.toFixed(2)  + ", \"mediaviento\": " + viento.toFixed(2) + ", \"mediahumedad\": " + humedad.toFixed(2) + ", \"medialuz\": " + luz.toFixed(2) +"}"
+        dato = "{\"mediatemperatura\":" + temperatura.toFixed(2)  + ", \"mediaviento\": " + viento.toFixed(2) + ", \"mediahumedad\": " + humedad.toFixed(2) + ", \"modaluz\": \"" + est +"\" }"
         insertdata2(dato)
 
         //res.send(result);
@@ -279,8 +295,8 @@ function getStringVisibility(time, light){
 prueba = "{\"temperatura\": 26.10, \"viento\": 14.00, \"humedad\": 18.00,\"direccion\": -1,\"luz\": 1000";
 console.log(prueba.toString())
 insertData(datetime(prueba.toString()))
-medias()*/
-
+medias()
+*/
 //let today_weather = getStringVisibility("20:0:13", 914);
 //console.log(today_weather)
 //console.log(weather.SUNNY)
