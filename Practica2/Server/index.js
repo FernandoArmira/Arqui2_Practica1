@@ -151,9 +151,20 @@ function datetime(data){
     var fecha = new Date();
     const str = data;
 
+    var temporal = data + "}"
+    const obj  = JSON.parse(temporal);
+
+    //console.log(obj.luz)
+
+    var hora =  fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds()
+
+    let today_weather = getStringVisibility(hora, obj.luz);
+    
     //console.log(str);
-    const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
+    const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\", \"estado\": \"" + today_weather + "\"}"
+    
     console.log(str2);
+    //console.log(today_weather)
 
     return str2
 }
@@ -178,10 +189,98 @@ app.get('/medias',(req, res ) => {
 })
 */
 
+//Analisis dato luminosidad
+const weather = {
+    SUNNY: "SUNNY",
+    CLOUDY: "CLOUDY"
+}
+
+//Returns an enum to indicate weather is sunny or cloudy, only works from 7am to 6pm
+function getLight(time, light){
+    let time_split = time.split ( ":" );
+    let hour = parseInt(time_split[0].trim());
+    let minutes = parseInt(time_split[1].trim());
+    switch (hour){
+        case 7:
+            if(light > 930)
+                return weather.SUNNY;            
+            break;
+        case 8:
+            if(light > 935)
+                return weather.SUNNY;
+            break;
+        case 9:
+            if(light > 950)
+                return weather.SUNNY;
+            break;
+        case 10:
+            if(light > 970)
+                return weather.SUNNY;
+            break;
+        case 11:
+            if(light > 980)
+                return weather.SUNNY;
+            break;
+        case 12:
+
+            if(light > 980)
+                return weather.SUNNY;
+            break;
+        case 13:
+            if(light > 960)
+                return weather.SUNNY;
+            break;
+        case 14:
+            if(light > 940)
+                return weather.SUNNY;
+            break;
+        case 15:
+            if(light > 915)
+                return weather.SUNNY;
+            break;
+        case 16:
+            if(light > 915)
+                return weather.SUNNY;
+            break;
+        case 17:
+            if(light > 935)
+                if(minutes <= 40 && light > 600){
+                    return weather.SUNNY;
+                }else if(minutes > 40 && minutes <= 50 && light > 400){
+                    return weather.SUNNY;
+                }else if(minutes > 50 && minutes <= 55 && light > 250){
+                    return weather.SUNNY;
+                }else if(minutes > 55  && light > 150){
+                    return weather.SUNNY;
+                }else{
+                    return weather.CLOUDY;
+                }
+            break;
+        case 18:
+            if(light > 100)
+                return weather.SUNNY;
+            break;
+        default:
+            return weather.SUNNY
+
+    }
+
+    
+}
+
+
+function getStringVisibility(time, light){
+    //return "Visibilidad [" +  (getLight(time, light)==weather.SUNNY?"despejado":"nublado") + "]"
+    return getLight(time, light)==weather.SUNNY?"despejado":"nublado"
+}
 
 //Pruebas
 /*
-prueba = "{\"temperatura\": 26.10, \"viento\": 14.00, \"humedad\": 18.00,\"direccion\": -1,\"luz\": 322";
+prueba = "{\"temperatura\": 26.10, \"viento\": 14.00, \"humedad\": 18.00,\"direccion\": -1,\"luz\": 1000";
 console.log(prueba.toString())
 insertData(datetime(prueba.toString()))
 medias()*/
+
+//let today_weather = getStringVisibility("20:0:13", 914);
+//console.log(today_weather)
+//console.log(weather.SUNNY)
