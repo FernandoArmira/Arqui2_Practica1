@@ -38,6 +38,7 @@ port.on("open",() => {
 parser.on("data", data =>{
     console.log(data);
     database.insertData(database.datetime(data))
+    database.analyzedata(database.datetime(data))
     estadosilla(data)
     if(estado != 0 && contador == 0){
         if(estado ==1){
@@ -64,7 +65,7 @@ parser.on("data", data =>{
 // Funcion que analiza los datos en la coleccion tomadas del dia anterior
 //console.log(database.yesterday())
 //database.analyzedata("20-9-2021");
-database.analyzedata(database.yesterday());
+//database.analyzedata(database.yesterday());
 
 
 // Rutas
@@ -76,10 +77,39 @@ app.get('/',(req, res ) => {
     //database.insertData(database.datetime(prueba))    
 })
 
-//datos tomados de cada dia /datosdia12-9-2021
+//monitoreo de datos en crudo
+app.get('/monitoreo',(req, res ) => {
+    database.monitoreo(req,res)
+})
+
+//datos tomados por dia /datosdia12-9-2021
 app.get('/datosdia:fecha',(req, res ) => {
     const {fecha} = req.params;
     database.selectData(req,res, fecha)
+})
+
+//datos tomados por mes /datosmes9
+app.get('/datosmes:mes',(req, res ) => {
+    const {mes} = req.params;
+    database.selectDatamonth(req,res, mes)
+})
+
+//datos tomados por rango de fecha /datos12-9-2021-15-9-2021
+app.get('/datos:rango',(req, res ) => {
+    const {rango} = req.params;
+    database.selectDatarango(req,res,rango)
+})
+
+//datos tomados por rango de hora /rangohora10:10-12:30
+app.get('/rangohora:rangohora',(req, res ) => {
+    const {rangohora} = req.params;
+    database.selectDatarangohour(req,res,rangohora)
+})
+
+//datos tomados por rango de hora y una fecha en especifico /rangofechahora10:10-12:30-25-9-2021
+app.get('/rangofecha:rangohora',(req, res ) => {
+    const {rangohora} = req.params;
+    database.selectDatarangohourdate(req,res,rangohora)
 })
 
 //Horarios en los que se uso la silla de cada dia /horario12-9-2021
@@ -101,11 +131,6 @@ app.get('/acumulados',(req, res ) => {
 //peso promedio tomado por dia desde dia 1
 app.get('/pesopromedio',(req, res ) => {
     database.selectpeso(req,res)
-})
-
-//monitoreo de datos en crudo
-app.get('/monitoreo',(req, res ) => {
-    database.monitoreo(req,res)
 })
 
 //tiempo total de uso de la silla desde el dia 1 hasta el presente
@@ -187,7 +212,7 @@ function carga()
                 }
             }
             //console.log(contador_s);
-            console.log("0:" + contador_m + ":" + contador_s)
+            //console.log("0:" + contador_m + ":" + contador_s)
             tiempo= "0:" + contador_m + ":" + contador_s
             contador_s++;
         }
@@ -201,6 +226,13 @@ function estadosilla(data){
     console.log(estado)
 }
 
+/*
+prueba = "{\"sentado\":" + 0 + ", \"peso\": 160}";
+console.log(prueba);
+database.insertData(database.datetime(prueba))
+database.analyzedata(database.datetime(prueba))
+*/
+
 //Pruebas tiemporeal
 /*
 app.post('/', (req, res) => {
@@ -208,6 +240,7 @@ app.post('/', (req, res) => {
     prueba = "{\"sentado\":" + id + ", \"peso\": 160}";
     console.log(prueba);
     database.insertData(database.datetime(prueba))
+    database.analyzedata(database.datetime(prueba))
     res.send("Dato insertado")
     estadosilla(prueba)
     if(estado != 0 && contador == 0){

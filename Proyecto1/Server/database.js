@@ -10,10 +10,14 @@ const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb://fernando:ChZIc4DP7SwmWED1@cluster0-shard-00-00.tk4g5.mongodb.net:27017,cluster0-shard-00-01.tk4g5.mongodb.net:27017,cluster0-shard-00-02.tk4g5.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-zppbt4-shard-0&authSource=admin&retryWrites=true&w=majority";
 console.log("Conexion a BD")
 
+//pesototal = 0
+contador = 0
+horainicial = ""
+
 
 module.exports = {
 
-    //Funcion insertar datos en la DB
+//Funcion insertar datos en la DB
 insertData: function(data){
     MongoClient.connect(url,function(err, db){
         if (err) throw err;
@@ -33,21 +37,21 @@ datetime: function(data){
 
     //console.log(str);
     const str2 = str + ", \"fecha\": \""  + fecha.getDate() + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear() + "\", \"hora\": \"" + fecha.getHours() + ":" + fecha.getMinutes() + ":" + fecha.getSeconds() + "\"}"
-    console.log(str2);
+    //console.log(str2);
 
     return str2
 },
 
-//Cal
-yesterday: function(){
-    var fecha = new Date();
-    const str2 = (fecha.getDate()-1) + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear()
-    //console.log(str2);
-    return str2
+
+today: function(){
+  var fecha = new Date();
+  const str2 = (fecha.getDate()) + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear()
+  //console.log(str2);
+  return str2
 },
 
 //Filtrar datos
-
+/*
 //Seleccionar un dato en especifico
 select: function (req, res, datep, i1, i2){
     MongoClient.connect(url, function(err, db) {
@@ -60,9 +64,9 @@ select: function (req, res, datep, i1, i2){
           db.close();
         });
       });
-},
+},*/
 
-    // Monitoreo de los datos
+// Monitoreo de los datos
     monitoreo: function(req, res){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
@@ -76,7 +80,7 @@ select: function (req, res, datep, i1, i2){
           });
     },
 
-    // Seleccionar todos los datos de un dia
+// Seleccionar todos los datos de un dia
 selectData: function(req, res, datep){
     MongoClient.connect(url, function(err, db) {
         if (err) throw err;
@@ -90,66 +94,201 @@ selectData: function(req, res, datep){
       });
 },
 
-    analyzedata: function (datap){
-        MongoClient.connect(url, function(err, db) {
-            if (err) throw err;
-            var dbo = db.db("mydb");
+//Seleccionar todos los datos de un mes
+selectDatamonth: function(req, res, mes){
+  MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
+        if (err) throw err;
+        var filtro = []
+        for(var i=0;i<result.length;i++){
+          split1 = ""
 
-            dbo.collection("horarios").find({fecha: datap}).toArray(function(err, res) {
-                if (err) throw err;
-                //console.log(res.length);
-            
-            if(res.length == 0){
+          if(result[i].fecha != undefined){
+            split1 = result[i].fecha.split("-")
+            if(split1[1]==mes){
+              //console.log(result[i].fecha)
+              //console.log(split1[1])
+              filtro.push(result[i])
+  
+            }
+          }
+          
+        }
+        
+        res.send(filtro);
+        db.close();
+      });
+    });
+},
 
-            dbo.collection("medidas").find({fecha: datap}).toArray(function(err, result) {
-                if (err) throw err;
-                horainicial = ""
-                horafinal = ""
-                estado = "" 
-                contador = 0
+//Seleccionar los datos por rango de fecha
+selectDatarango: function(req, res, rango){
+  //console.log(rango)
+  split0 = rango.split("-")
+  dias = (Number(split0[3]) - Number(split0[0])) + ((Number(split0[4]) - Number(split0[1])) * 30)
+  //console.log(dias)
+  MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
+        if (err) throw err;
+        var filtro = []
+        for(var i=0;i<result.length;i++){
+          split1 = ""
+
+          if(result[i].fecha != undefined){
+            split1 = result[i].fecha.split("-")
+            diasdb = (Number(split0[3]) - Number(split1[0])) + ((Number(split0[4]) - Number(split1[1])) * 30)
+
+            if(diasdb <= dias && diasdb >=0){
+              //console.log(result[i].fecha)
+              //console.log(split1[1])
+              filtro.push(result[i])
+  
+            }
+          }
+          
+        }
+        
+        res.send(filtro);
+        db.close();
+      });
+    });
+},
+
+//Seleccionar los datos por rango de hora
+selectDatarangohour: function(req, res, rango){
+  //console.log(rango)
+  split0 = rango.split("-")
+  split0_1 = split0[0].split(":")
+  split0_2 = split0[1].split(":")
+  tiempo = ((Number(split0_2[0]) - Number(split0_1[0]))*60) + (Number(split0_2[1]) - Number(split0_1[1]))
+  //console.log(tiempo)
+  MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
+        if (err) throw err;
+        var filtro = []
+        for(var i=0;i<result.length;i++){
+          split1 = ""
+
+          if(result[i].fecha != undefined){
+            split1 = result[i].hora.split(":")
+            tiempodb = ((Number(split0_2[0]) - Number(split1[0]))*60) + (Number(split0_2[1]) - Number(split1[1]))
+            if(tiempodb <= tiempo && tiempodb >=0){
+              //console.log(result[i].fecha)
+              //console.log(split1[1])
+              filtro.push(result[i])
+  
+            }
+          }
+          
+        }
+        
+        res.send(filtro);
+        db.close();
+      });
+    });
+},
+
+//Seleccionar los datos por rango de hora y una fecha
+selectDatarangohourdate: function(req, res, rango){
+  //console.log(rango)
+  split0 = rango.split("-")
+  split0_1 = split0[0].split(":")
+  split0_2 = split0[1].split(":")
+  tiempo = ((Number(split0_2[0]) - Number(split0_1[0]))*60) + (Number(split0_2[1]) - Number(split0_1[1]))
+  fecha = split0[2] + "-" + split0[3] + "-" + split0[4]
+  //console.log(tiempo)
+  MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("medidas").find( { $or: [ { sentado: 0}, { sentado: 1 }, { sentado: 2 }, { sentado: 3} ] }).toArray(function(err, result) {
+        if (err) throw err;
+        var filtro = []
+        for(var i=0;i<result.length;i++){
+          split1 = ""
+
+          if(result[i].fecha != undefined){
+            split1 = result[i].hora.split(":")
+            tiempodb = ((Number(split0_2[0]) - Number(split1[0]))*60) + (Number(split0_2[1]) - Number(split1[1]))
+            if((tiempodb <= tiempo && tiempodb >=0) && result[i].fecha == fecha){
+              //console.log(result[i].fecha)
+              //console.log(split1[1])
+              filtro.push(result[i])
+  
+            }
+          }
+          
+        }
+        
+        res.send(filtro);
+        db.close();
+      });
+    });
+},
+
+//Analisis de los datos
+
+    analyzedata: function (dato){
+      console.log(dato)
+
+      const obj  = JSON.parse(dato);
+      //console.log(obj.fecha)
+      //console.log(obj.hora)
+      
+      datap = obj.fecha
+      estado = obj.sentado
+      peso = obj.peso
+      //console.log(estado)
+      //console.log(peso)
+
                 maximo = 0
                 acumulado = 0
-                pesopromedio = 0
                 nlevantamientos = 0
                 minfinal = 0
 
-                split0 = datap.split("-")
+                var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                var d = new Date(datap);
+                var dayName = days[d.getDay()];
+                //console.log(dayName)
 
+                /*split0 = datap.split("-")
                 //var dateStr = '9/16/2021';
                 var dateStr = split0[1] + "/" + split0[0] + "/" + split0[2];
-                var day = getDayName(dateStr, "nl-NL"); // Gives back 'Vrijdag' which is Dutch for Friday.
-                console.log(day)
-                
+                var day = getDayName(dateStr, "nl-NL"); // Gives back 'Vrijdag' which is Dutch for Friday.*/
+                //console.log(day)
 
-                for(var i =0;i<result.length;i++){
-                    if(result[i].sentado != "0"){
-                        estado = "sentado"
-                        console.log(estado) // si esta bien o mal sentado modificar ....
-                        console.log("peso " + result[i].peso) 
-                        pesopromedio = pesopromedio + result[i].peso
-                        console.log(result[i].hora)
-                        horainicial = result[i].hora
-                        var j = i + 1
+                    if(estado != "0" && contador == 0){
+                        //pesototal = pesototal + peso
+                        contador = contador + 1
+                        horainicial = obj.hora
+                        //console.log(horainicial)
+                        this.tendenciapeso(datap)
+                        this.maximo(datap)
+                        this.acumulado(datap)
+                        this.nlevantadas(datap)
+                      }
 
-                        if(j >= result.length){
-                            horafinal = horainicial
-                        }
+                      else if(estado != "0" && contador > 0){
+                        //pesototal = pesototal + peso
+                        contador = contador + 1
+                        //console.log(obj.hora)
+                        this.tendenciapeso(datap)
+                        this.maximo(datap)
+                        this.acumulado(datap)
+                        this.nlevantadas(datap)
+                      }
 
-                        for(j;j<result.length;j++){
-                            if(result[j].sentado == "0"){
-                                horafinal = result[j-1].hora
-                                i = j
-                                j = result.length
-                            }
-                            if(j == (result.length-1)){
-                                horafinal = result[result.length-1].hora
-                                i = j
-                            }
-                            
-                        }
-          
+                      else if(estado == "0" && contador > 0){
+                        //pesototal = pesototal + peso
+                        contador = contador + 1
+                        horafinal = obj.hora
 
-                        console.log(horafinal)
+                        //console.log(horafinal)
                         split1 = horainicial.split(":")
                         split2 = horafinal.split(":")
 
@@ -159,54 +298,179 @@ selectData: function(req, res, datep){
 
                         minfinal = parseInt(split2[1],10)
 
-                        console.log(tiempototal.toFixed(2))
-                        console.log(contador)
+                        console.log(horafinal)
+                        //console.log(tiempototal.toFixed(2))
+                        //console.log(contador)
 
-                        dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"dia\": \"" + day + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
+                        dato = "{\"id\": " + 0  + ", \"fecha\": \"" + datap + "\", \"dia\": \"" + dayName + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
+                        //console.log(dato)
                         insertdata2(dato)
 
-                        if(tiempototal >= maximo){ //maximo de tiempo seguido que el usuario uso la silla
-                            maximo = tiempototal
-                        }
+                        horainicial = ""
+                        contador = 0
+                        //pesototal = 0
+                        this.tendenciapeso(datap)
+                        this.maximo(datap)
+                        this.acumulado(datap)
+                        this.nlevantadas(datap)
+                      }
+          
 
-                        acumulado = acumulado + tiempototal // acumulado del tiempo que el usuario uso la silla
+    },
 
-                        contador++
-                        nlevantamientos = contador
-                    }
-                }
-                    
-                    console.log((maximo/60).toFixed(2)) //horas
-                    dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day + "\", \"maximo\": " + (maximo/60).toFixed(2) + "}"
-                    insertmax(dato)
-                    console.log((acumulado/60).toFixed(2)) //horas
-                    dato = "{\"fecha\": \"" + datap  + "\", \"dia\": \"" + day + "\", \"acumulado\": " + (acumulado/60).toFixed(2) + "}"
-                    insertacumulado(dato)
-                    //console.log(contador)
-                    console.log((pesopromedio/contador).toFixed(2))
-                    dato = "{\"fecha\": \"" + datap  + "\", \"peso\": " + (pesopromedio/contador).toFixed(2) + "}"
-                    insertpesopromedio(dato)
+    tendenciapeso: function(fechap){
+      //console.log(fechap)
+      pesototal = 0
+      contadorpeso= 0
+      MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("medidas").find( { $or: [{$and: [{sentado: 1}, {fecha:fechap}] }, {$and: [{sentado: 2}, {fecha:fechap}]}, {$and: [{sentado: 3}, {fecha:fechap}]} ] }).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          for(var i=0;i<result.length;i++){
+            //console.log(result[i].peso)
+            pesototal = pesototal + result[i].peso
+            contadorpeso++
+          }
+          pesototal = pesototal/contadorpeso
+          //console.log(pesototal.toFixed(2))
+          dato = "{\"fecha\": \"" + fechap  + "\", \"peso\": " + pesototal.toFixed(2) + "}"
+          //res.send(result);
+          
+        });
 
-                    //console.log(minfinal)
+        dbo.collection("pesopromedio").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          //res.send(result);
+          if(result.length > 0){
+            //console.log("ya existe datos")
+            deletepesopromedio(fechap)
+            insertpesopromedio(dato)
 
-                    if(minfinal == 59){
-                        console.log(nlevantamientos-1)
-                        dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day  + "\", \"nlevantadas\": " + (nlevantamientos-1) + "}"
-                        insertlevantadas(dato)
+          }else{
+            //console.log("no existe datos")
+            insertpesopromedio(dato)
+          }
+          db.close();
+        });
 
-                    } else{
-                        console.log(nlevantamientos)
-                        dato = "{\"fecha\": \"" + datap + "\", \"dia\": \"" + day   + "\", \"nlevantadas\": " + nlevantamientos + "}"
-                        insertlevantadas(dato)
-                    }
-                    
-                    db.close()
-                });
+      });
+
+    },
+
+    maximo: function(fechap){
+      //console.log(fechap)
+      max = 0
+      day = ""
+
+      MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+
+        dbo.collection("horarios").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+          for(var i=0;i<result.length;i++){
+            day = result[i].dia
+            if(result[i].tiempo > max){
+              max = result[i].tiempo
             }
-                
-            }); 
+          }
 
-          });
+          datomax = "{\"fecha\": \"" + fechap + "\", \"dia\": \"" + day + "\", \"maximo\": " + max + "}"
+          insertmax(datomax)
+          //console.log(result);
+          //res.send(result);
+          db.close();
+
+        });
+
+      });
+
+    },
+
+    acumulado: function(fechap){
+      //console.log(fechap)
+      datoacumulado=""
+      totalacumulado = 0
+      day = ""
+
+      MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+
+        dbo.collection("horarios").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+          for(var i=0;i<result.length;i++){
+            day = result[i].dia
+            totalacumulado = totalacumulado + result[i].tiempo
+          }
+
+          datoacumulado = "{\"fecha\": \"" + fechap  + "\", \"dia\": \"" + day + "\", \"acumulado\": " + totalacumulado + "}"
+          //console.log(datoacumulado)
+        });
+
+        dbo.collection("acumulado").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          //res.send(result);
+          if(result.length > 0){
+            //console.log("ya existe datos")
+            deleteacumulado(fechap)
+            insertacumulado(datoacumulado)
+
+          }else{
+            //console.log("no existe datos")
+            insertacumulado(datoacumulado)
+            
+          }
+          db.close();
+        });
+
+      });
+
+    },
+
+    nlevantadas: function(fechap){
+      //console.log(fechap)
+      datolevantas=""
+      levantadas = 0
+      day = ""
+
+      MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+
+        dbo.collection("horarios").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+
+          levantadas = result.length
+          day = result[0].dia
+
+          datolevantas = "{\"fecha\": \"" + fechap + "\", \"dia\": \"" + day  + "\", \"nlevantadas\": " + levantadas + "}"
+                        
+          //console.log(datoacumulado)
+        });
+
+        dbo.collection("levantadas").find({fecha: fechap}).toArray(function(err, result) {
+          if (err) throw err;
+          //console.log(result);
+          //res.send(result);
+          if(result.length > 0){
+            //console.log("ya existe datos")
+            deletelevantadas(fechap)
+            insertlevantadas(datolevantas)
+
+          }else{
+            //console.log("no existe datos")
+            insertlevantadas(datolevantas)
+            
+          }
+          db.close();
+        });
+
+      });
 
     },
 
@@ -1101,6 +1365,41 @@ function insertpesopromedio(data){
         });
     });
 }
+
+function deletepesopromedio(date){
+  MongoClient.connect(url,function(err, db){
+      if (err) throw err;
+      const dbo = db.db('mydb');
+      dbo.collection('pesopromedio').deleteOne({fecha: date}, function(err,res){
+          if(err) throw err;
+          db.close();
+      });
+  });
+}
+
+
+function deleteacumulado(date){
+  MongoClient.connect(url,function(err, db){
+      if (err) throw err;
+      const dbo = db.db('mydb');
+      dbo.collection('acumulado').deleteOne({fecha: date}, function(err,res){
+          if(err) throw err;
+          db.close();
+      });
+  });
+}
+
+function deletelevantadas(date){
+  MongoClient.connect(url,function(err, db){
+      if (err) throw err;
+      const dbo = db.db('mydb');
+      dbo.collection('levantadas').deleteOne({fecha: date}, function(err,res){
+          if(err) throw err;
+          db.close();
+      });
+  });
+}
+
 
 function insertlevantadas(data){
     MongoClient.connect(url,function(err, db){
