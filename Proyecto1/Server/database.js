@@ -478,7 +478,7 @@ selectDatarangohourdate: function(req, res, rango){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("horarios").find({fecha: fechap}).sort({id: 1}).toArray(function(err, result) {
+            dbo.collection("horarios").find({fecha: fechap}).toArray(function(err, result) {
               if (err) throw err;
               //console.log(result);
               res.send(result);
@@ -550,11 +550,24 @@ selectDatarangohourdate: function(req, res, rango){
                 if (err) throw err;
                 //console.log(result[0]);
                 array[6] = result[0]
-                //res.send(result);
+                //res.send(result)
+                //res.send(array)
+                //db.close();
+              });
+
+              dbo.collection("maximo").find().toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                media = (array[0].maximo + array[1].maximo + array[2].maximo + array[3].maximo + array[4].maximo + array[5].maximo)/7
+                //console.log(media)
+                dato = "{\"media\": " + media.toFixed(2) + "}"
+                const obj  = JSON.parse(dato);
+                array[7] = obj
+                //res.send(result)
                 res.send(array)
                 db.close();
               });
-              
+                
           });
 
     },
@@ -653,7 +666,7 @@ selectDatarangohourdate: function(req, res, rango){
         MongoClient.connect(url, function(err, db) {
             if (err) throw err;
             var dbo = db.db("mydb");
-            dbo.collection("pesopromedio").find().sort({fecha: 1}).toArray(function(err, result) {
+            dbo.collection("pesopromedio").find().toArray(function(err, result) {
               if (err) throw err;
               //console.log(result);
               res.send(result);
@@ -876,9 +889,28 @@ selectDatarangohourdate: function(req, res, rango){
                 }
                   
                 
+                //res.send(array)
+                //db.close();
+                //res.send(result);
+              });
+
+              dbo.collection("levantadas").find().toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                media = 0
+                for(var i=0;i<result.length;i++){
+                    media = media + result[i].nlevantadas
+                }
+
+                //console.log((media/result.length).toFixed(2))
+
+                dato = "{\"media\": " + (media/result.length).toFixed(2) + "}"
+                const obj  = JSON.parse(dato);
+
+                array[7] = obj
+                //res.send(result);
                 res.send(array)
                 db.close();
-                //res.send(result);
               });
         });
 
@@ -1072,9 +1104,28 @@ selectDatarangohourdate: function(req, res, rango){
                 }
                   
                 
+                //res.send(array)
+                //db.close();
+                //res.send(result);
+              });
+
+              dbo.collection("acumulado").find().toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                media = 0
+                for(var i=0;i<result.length;i++){
+                    media = media + result[i].acumulado
+                }
+
+                //console.log((media/result.length).toFixed(2))
+
+                dato = "{\"media\": " + (media/result.length).toFixed(2) + "}"
+                const obj  = JSON.parse(dato);
+
+                array[7] = obj
+                //res.send(result);
                 res.send(array)
                 db.close();
-                //res.send(result);
               });
         });
 
@@ -1281,9 +1332,22 @@ selectDatarangohourdate: function(req, res, rango){
                 }
                   
                 
+                //res.send(array)
+                //db.close();
+                //res.send(result);
+              });
+
+              dbo.collection("acumulado").find().toArray(function(err, result) {
+                if (err) throw err;
+                //console.log(result[0]);
+                media = (array[0].tiempototal + array[1].tiempototal + array[2].tiempototal + array[3].tiempototal + array[4].tiempototal + array[5].tiempototal)/7
+                //console.log(media)
+                dato = "{\"media\": " + media.toFixed(2) + "}"
+                const obj  = JSON.parse(dato);
+                array[7] = obj
+                //res.send(result)
                 res.send(array)
                 db.close();
-                //res.send(result);
               });
         });
 

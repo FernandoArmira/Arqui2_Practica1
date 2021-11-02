@@ -153,7 +153,7 @@ app.get('/peso',(req, res ) => {
     database.pesoultimodato(req,res)
 })
 
-//tiempo total que se usa la silla por dia
+//tiempo total que se usa la silla por dia *
 app.get('/tiempouso',(req, res ) => {
     database.tiempousado(req,res)
 })
