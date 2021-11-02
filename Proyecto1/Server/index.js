@@ -234,7 +234,7 @@ database.analyzedata(database.datetime(prueba))
 */
 
 //Pruebas tiemporeal
-/*
+
 app.post('/', (req, res) => {
     var id = req.body.id
     prueba = "{\"sentado\":" + id + ", \"peso\": 160}";
@@ -264,4 +264,3 @@ app.post('/', (req, res) => {
         contador = 0
     }
 });
-*/

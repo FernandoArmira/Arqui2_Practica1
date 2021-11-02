@@ -13,6 +13,9 @@ console.log("Conexion a BD")
 //pesototal = 0
 contador = 0
 horainicial = ""
+contadorms = 0
+horainicialmalsentado = ""
+acumuladomalsentado = ""
 
 
 module.exports = {
@@ -42,13 +45,13 @@ datetime: function(data){
     return str2
 },
 
-
+/*
 today: function(){
   var fecha = new Date();
   const str2 = (fecha.getDate()) + "-" + (fecha.getMonth()+1) + "-" + fecha.getUTCFullYear()
   //console.log(str2);
   return str2
-},
+},*/
 
 //Filtrar datos
 /*
@@ -271,6 +274,12 @@ selectDatarangohourdate: function(req, res, rango){
                         this.maximo(datap)
                         this.acumulado(datap)
                         this.nlevantadas(datap)
+
+                        if(estado == 2){
+                          horainicialmalsentado = obj.hora
+                          contadorms = contadorms + 1
+                        }
+
                       }
 
                       else if(estado != "0" && contador > 0){
@@ -281,6 +290,30 @@ selectDatarangohourdate: function(req, res, rango){
                         this.maximo(datap)
                         this.acumulado(datap)
                         this.nlevantadas(datap)
+
+                        if(estado == 2 && contadorms == 0){
+                          horainicialmalsentado = obj.hora
+                          contadorms = contadorms + 1
+                        }
+                        
+                        if(estado == 1 && contadorms > 0){
+                          contadorms = contadorms + 1
+                          horafinalmalsentado = obj.hora
+
+                          //console.log(horafinal)
+                          split1 = horainicialmalsentado.split(":")
+                          split2 = horafinalmalsentado.split(":")
+
+                          tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                          tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                          tiempototalms = tiempo2 - tiempo1
+
+                          acumuladomalsentado = acumuladomalsentado + tiempototalms
+
+                          horainicialmalsentado = ""
+                          contadorms = 0
+         
+                        }
                       }
 
                       else if(estado == "0" && contador > 0){
@@ -306,13 +339,45 @@ selectDatarangohourdate: function(req, res, rango){
                         //console.log(dato)
                         insertdata2(dato)
 
-                        horainicial = ""
-                        contador = 0
+                        
                         //pesototal = 0
                         this.tendenciapeso(datap)
                         this.maximo(datap)
                         this.acumulado(datap)
                         this.nlevantadas(datap)
+
+                        if(contadorms > 0){
+                          contadorms = contadorms + 1
+                          horafinalmalsentado = obj.hora
+
+                          //console.log(horafinal)
+                          split1 = horainicialmalsentado.split(":")
+                          split2 = horafinalmalsentado.split(":")
+
+                          tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                          tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                          tiempototalms = tiempo2 - tiempo1
+
+                          acumuladomalsentado = acumuladomalsentado + tiempototalms
+
+                          datoms = "{\"id\": " + 0  + ", \"fecha\": \"" + datap + "\", \"dia\": \"" + dayName + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2) + ", \"tiempomalsentado\":" +  (acumuladomalsentado/60).toFixed(4) +"}"
+                          //console.log(dato)
+                          insertdata3(datoms)
+
+                          horainicialmalsentado = ""
+                          contadorms = 0
+                          acumuladomalsentado = 0
+
+                        } else if(contadorms == 0){
+                          datoms = "{\"id\": " + 0  + ", \"fecha\": \"" + datap + "\", \"dia\": \"" + dayName + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2) + ", \"tiempomalsentado\":" +  (acumuladomalsentado/60).toFixed(4)  +"}"
+                          //console.log(dato)
+                          insertdata3(datoms)
+                          acumuladomalsentado = 0
+                        }
+
+                        horainicial = ""
+                        contador = 0
+
                       }
           
 
@@ -446,7 +511,10 @@ selectDatarangohourdate: function(req, res, rango){
           if (err) throw err;
 
           levantadas = result.length
-          day = result[0].dia
+
+          if(result.length > 0){
+            day = result[0].dia
+          }
 
           datolevantas = "{\"fecha\": \"" + fechap + "\", \"dia\": \"" + day  + "\", \"nlevantadas\": " + levantadas + "}"
                         
@@ -1392,6 +1460,18 @@ function insertdata2(data){
             db.close();
         });
     });
+}
+
+function insertdata3(data){
+  MongoClient.connect(url,function(err, db){
+      if (err) throw err;
+      const dbo = db.db('mydb');
+      const obj  = JSON.parse(data);
+      dbo.collection('horariosmalsentado').insertOne(obj, function(err,res){
+          if(err) throw err;
+          db.close();
+      });
+  });
 }
 
 function insertmax(data){
