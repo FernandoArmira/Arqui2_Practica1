@@ -89,30 +89,6 @@ app.get('/datosdia:fecha',(req, res ) => {
     database.selectData(req,res, fecha)
 })
 
-//datos tomados por mes /datosmes9
-app.get('/datosmes:mes',(req, res ) => {
-    const {mes} = req.params;
-    database.selectDatamonth(req,res, mes)
-})
-
-//datos tomados por rango de fecha /datos12-9-2021-15-9-2021
-app.get('/datos:rango',(req, res ) => {
-    const {rango} = req.params;
-    database.selectDatarango(req,res,rango)
-})
-
-//datos tomados por rango de hora /rangohora10:10-12:30
-app.get('/rangohora:rangohora',(req, res ) => {
-    const {rangohora} = req.params;
-    database.selectDatarangohour(req,res,rangohora)
-})
-
-//datos tomados por rango de hora y una fecha en especifico /rangofechahora10:10-12:30-25-9-2021
-app.get('/rangofecha:rangohora',(req, res ) => {
-    const {rangohora} = req.params;
-    database.selectDatarangohourdate(req,res,rangohora)
-})
-
 //Horarios en los que se uso la silla de cada dia /horario12-9-2021
 app.get('/horario:fecha',(req, res ) => {
     const {fecha} = req.params;
@@ -189,10 +165,50 @@ app.get('/realtime',(req, res ) => {
     res.send(obj)
 })
 
+///////////////////////////////////ENDPOINTS PROYECTO 2//////////////////////////////////////////////////
+
+//FILTRO DE DATOS
+//datos tomados por mes /datosmes9
+app.get('/datosmes:mes',(req, res ) => {
+    const {mes} = req.params;
+    database.selectDatamonth(req,res, mes)
+})
+
+//datos tomados por rango de fecha /datos12-9-2021-15-9-2021
+app.get('/datos:rango',(req, res ) => {
+    const {rango} = req.params;
+    database.selectDatarango(req,res,rango)
+})
+
+//datos tomados por rango de hora /rangohora10:10-12:30
+app.get('/rangohora:rangohora',(req, res ) => {
+    const {rangohora} = req.params;
+    database.selectDatarangohour(req,res,rangohora)
+})
+
+//datos tomados por rango de hora y una fecha en especifico /rangofechahora10:10-12:30-25-9-2021
+app.get('/rangofecha:rangohora',(req, res ) => {
+    const {rangohora} = req.params;
+    database.selectDatarangohourdate(req,res,rangohora)
+})
+
+//TIEMPO MAL SENTADO
 //tiempo total que ha pasado mal sentado
 app.get('/malsentadototal',(req, res ) => {
     database.tiempototalmalsentado(req,res)
 })
+
+//tiempo que ha pasado mal sentado en los horarios por fecha /malsentadohorario3-11-2021
+app.get('/malsentadohorario:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    database.selecthorariomalsentado(req,res, fecha)
+})
+
+//tiempo total mal sentado filtrado por dia de la semana
+app.get('/malsentadotiempouso',(req, res ) => {
+    database.tiempousadomalsentado(req,res)
+})
+
 
 /////////////////////////////////////////////////Funciones tiempo real////////////////////////////////////////
 
