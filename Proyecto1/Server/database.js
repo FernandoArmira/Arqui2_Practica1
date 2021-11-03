@@ -385,6 +385,7 @@ selectDatarangohourdate: function(req, res, rango){
 
     tendenciapeso: function(fechap){
       //console.log(fechap)
+      datopeso = ""
       pesototal = 0
       contadorpeso= 0
       MongoClient.connect(url, function(err, db) {
@@ -400,7 +401,7 @@ selectDatarangohourdate: function(req, res, rango){
           }
           pesototal = pesototal/contadorpeso
           //console.log(pesototal.toFixed(2))
-          dato = "{\"fecha\": \"" + fechap  + "\", \"peso\": " + pesototal.toFixed(2) + "}"
+          datopeso = "{\"fecha\": \"" + fechap  + "\", \"peso\": " + pesototal.toFixed(2) + "}"
           //res.send(result);
           
         });
@@ -412,11 +413,11 @@ selectDatarangohourdate: function(req, res, rango){
           if(result.length > 0){
             //console.log("ya existe datos")
             deletepesopromedio(fechap)
-            insertpesopromedio(dato)
+            insertpesopromedio(datopeso)
 
           }else{
             //console.log("no existe datos")
-            insertpesopromedio(dato)
+            insertpesopromedio(datopeso)
           }
           db.close();
         });
@@ -1444,6 +1445,164 @@ selectDatarangohourdate: function(req, res, rango){
           db.close();
         });
       });
+},
+
+analyzedata2: function (datap){
+  MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      
+      dbo.collection("medidas").find({fecha: datap}).toArray(function(err, result) {
+          if (err) throw err;
+          horainicial = ""
+          horainicialms = ""
+          horafinal = ""
+          horafinalms = ""
+          estado = "" 
+          contador = 0
+          contadorms = 0
+          acumuladoms = 0
+          
+          split0 = datap.split("-")
+
+          //var dateStr = '9/16/2021';
+          var dateStr = split0[1] + "/" + split0[0] + "/" + split0[2];
+          var day = getDayName(dateStr, "nl-NL"); // Gives back 'Vrijdag' which is Dutch for Friday.
+          console.log(day)
+          
+
+          for(var i =0;i<result.length;i++){
+              if(result[i].sentado != "0"){
+                  estado = "sentado"
+                  console.log(estado)
+                  console.log(result[i].hora)
+                  horainicial = result[i].hora
+                  var j = i + 1
+
+                  if(result[i].sentado == "2"){
+                    horainicialms = result[i].hora
+                    contadorms = contadorms + 1 
+                  }
+
+                  if(j >= result.length){
+                      horafinal = horainicial
+                  }
+
+                  for(j;j<result.length;j++){
+                      if(result[j].sentado == "2" && contadorms == 0){
+                        //console.log("aaaa")
+                        horainicialms = result[j].hora
+                        contadorms = contadorms + 1
+                        //console.log(horainicialms)
+                        //console.log(contadorms)
+                      }
+                      if(result[j].sentado == "1" && contadorms > 0){
+                        //console.log("bbbb")
+                        horafinalms = result[j].hora
+                        //console.log("--" + horafinalms)
+                        contadorms = contadorms + 1
+
+                        split1 = horainicialms.split(":")
+                        split2 = horafinalms.split(":")
+
+                        tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                        tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                        tiempototalms = tiempo2 - tiempo1
+
+                        acumuladoms = acumuladoms + tiempototalms
+                        //console.log(acumuladoms)
+                        horainicialms = ""
+                        contadorms = 0
+
+                      }
+                      if(result[j].sentado == "0"){
+                          horafinal = result[j-1].hora
+
+                          if(contadorms > 0){
+                            horafinalms = result[j-1].hora
+                            //console.log("--" + horafinalms)
+                            contadorms = contadorms + 1
+
+                            split1 = horainicialms.split(":")
+                            split2 = horafinalms.split(":")
+
+                            tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                            tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                            tiempototalms = tiempo2 - tiempo1
+
+                            acumuladoms = acumuladoms + tiempototalms
+                            //console.log(acumuladoms)
+                            horainicialms = ""
+                            contadorms = 0
+
+                          }   
+
+                          i = j
+                          j = result.length    
+                          
+                      }
+                      if(j == (result.length-1)){
+                          horafinal = result[result.length-1].hora
+                          i = j
+                      }
+                      
+                  }
+    
+
+                  console.log(horafinal)
+                  split1 = horainicial.split(":")
+                  split2 = horafinal.split(":")
+
+                  tiempo1 = (parseInt(split1[0],10)*60) + parseInt(split1[1],10) + (parseInt(split1[2],10)/60)
+                  tiempo2 = (parseInt(split2[0],10)*60) + parseInt(split2[1],10) + (parseInt(split2[2],10)/60)
+                  tiempototal = tiempo2 - tiempo1 // minutos
+
+                  console.log(tiempototal.toFixed(2))
+                  console.log(acumuladoms.toFixed(2))
+                  
+                  //console.log(acumuladoms)
+                  console.log(contador)
+
+                  //dato = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha  + "\", \"dia\": \"" + day + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2)  + "}"
+                  datoms = "{\"id\": " + contador  + ", \"fecha\": \"" + result[i].fecha + "\", \"dia\": \"" + day + "\", \"horainicial\": \"" + horainicial + "\", \"horafinal\": \"" + horafinal + "\", \"tiempo\":" +  (tiempototal/60).toFixed(2) + ", \"tiempomalsentado\":" +  (acumuladoms/60).toFixed(4)  +"}"
+                  insertdata3(datoms)
+                  acumuladoms = 0
+                  contador++
+              }
+          }
+              
+              db.close()
+          });
+    });
+
+},
+
+tiempototalmalsentado: function(req,res){
+  MongoClient.connect(url, function(err, db) {
+      tiempototal = 0
+      tiempomalsentado = 0
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection("horariosmalsentado").find().sort({fecha: 1}).toArray(function(err, result) {
+        if (err) throw err;
+        //console.log(result);
+        //res.send(result);
+        tiempototal = 0
+        tiempomalsentado = 0
+        for(var i =0;i<result.length;i++){
+          tiempototal = tiempototal + result[i].tiempo
+          tiempomalsentado = tiempomalsentado + result[i].tiempomalsentado
+        }
+        //console.log(tiempototal)
+
+        res.send("{\"tiempototal\": " + (tiempototal).toFixed(2) + ",\"tiempototalmalsentado\": " + (tiempomalsentado).toFixed(2) + "}")
+
+        db.close();
+        
+      });
+
+    });
+
 },
   
 

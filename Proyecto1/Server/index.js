@@ -189,6 +189,11 @@ app.get('/realtime',(req, res ) => {
     res.send(obj)
 })
 
+//tiempo total que ha pasado mal sentado
+app.get('/malsentadototal',(req, res ) => {
+    database.tiempototalmalsentado(req,res)
+})
+
 /////////////////////////////////////////////////Funciones tiempo real////////////////////////////////////////
 
 function detenerse(){
@@ -237,6 +242,10 @@ database.analyzedata(database.datetime(prueba))
 //Pruebas tiemporeal
 
 app.post('/', (req, res) => {
+    /*var fecha = req.body.fecha
+    database.analyzedata2(fecha)
+    res.send("Dato insertado")*/
+    
     var id = req.body.id
     prueba = "{\"sentado\":" + id + ", \"peso\": 160}";
     console.log(prueba);
