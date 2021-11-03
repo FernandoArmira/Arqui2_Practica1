@@ -403,23 +403,25 @@ selectDatarangohourdate: function(req, res, rango){
           //console.log(pesototal.toFixed(2))
           datopeso = "{\"fecha\": \"" + fechap  + "\", \"peso\": " + pesototal.toFixed(2) + "}"
           //res.send(result);
+          //console.log(datopeso)
+
+          dbo.collection("pesopromedio").find({fecha: fechap}).toArray(function(err, result) {
+            //console.log(datopeso)
+            if (err) throw err;
+            //console.log(result);
+            //res.send(result);
+            if(result.length > 0){
+              //console.log("ya existe datos")
+              deletepesopromedio(fechap)
+              insertpesopromedio(datopeso)
+  
+            }else{
+              //console.log("no existe datos")
+              insertpesopromedio(datopeso)
+            }
+            db.close();
+          });
           
-        });
-
-        dbo.collection("pesopromedio").find({fecha: fechap}).toArray(function(err, result) {
-          if (err) throw err;
-          //console.log(result);
-          //res.send(result);
-          if(result.length > 0){
-            //console.log("ya existe datos")
-            deletepesopromedio(fechap)
-            insertpesopromedio(datopeso)
-
-          }else{
-            //console.log("no existe datos")
-            insertpesopromedio(datopeso)
-          }
-          db.close();
         });
 
       });
@@ -475,23 +477,23 @@ selectDatarangohourdate: function(req, res, rango){
 
           datoacumulado = "{\"fecha\": \"" + fechap  + "\", \"dia\": \"" + day + "\", \"acumulado\": " + totalacumulado + "}"
           //console.log(datoacumulado)
-        });
+          dbo.collection("acumulado").find({fecha: fechap}).toArray(function(err, result) {
+            if (err) throw err;
+            //console.log(result);
+            //res.send(result);
+            if(result.length > 0){
+              //console.log("ya existe datos")
+              deleteacumulado(fechap)
+              insertacumulado(datoacumulado)
+  
+            }else{
+              //console.log("no existe datos")
+              insertacumulado(datoacumulado)
+              
+            }
+            db.close();
+          });
 
-        dbo.collection("acumulado").find({fecha: fechap}).toArray(function(err, result) {
-          if (err) throw err;
-          //console.log(result);
-          //res.send(result);
-          if(result.length > 0){
-            //console.log("ya existe datos")
-            deleteacumulado(fechap)
-            insertacumulado(datoacumulado)
-
-          }else{
-            //console.log("no existe datos")
-            insertacumulado(datoacumulado)
-            
-          }
-          db.close();
         });
 
       });
@@ -520,23 +522,22 @@ selectDatarangohourdate: function(req, res, rango){
           datolevantas = "{\"fecha\": \"" + fechap + "\", \"dia\": \"" + day  + "\", \"nlevantadas\": " + levantadas + "}"
                         
           //console.log(datoacumulado)
-        });
-
-        dbo.collection("levantadas").find({fecha: fechap}).toArray(function(err, result) {
-          if (err) throw err;
-          //console.log(result);
-          //res.send(result);
-          if(result.length > 0){
-            //console.log("ya existe datos")
-            deletelevantadas(fechap)
-            insertlevantadas(datolevantas)
-
-          }else{
-            //console.log("no existe datos")
-            insertlevantadas(datolevantas)
-            
-          }
-          db.close();
+          dbo.collection("levantadas").find({fecha: fechap}).toArray(function(err, result) {
+            if (err) throw err;
+            //console.log(result);
+            //res.send(result);
+            if(result.length > 0){
+              //console.log("ya existe datos")
+              deletelevantadas(fechap)
+              insertlevantadas(datolevantas)
+  
+            }else{
+              //console.log("no existe datos")
+              insertlevantadas(datolevantas)
+              
+            }
+            db.close();
+          });
         });
 
       });
