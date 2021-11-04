@@ -127,8 +127,9 @@ selectDatamonth: function(req, res, mes){
 },
 
 //Seleccionar los datos por rango de fecha
-selectDatarango: function(req, res, rango){
+selectDatarango: function(req, res, fechai, fechaf){
   //console.log(rango)
+  rango = fechai + "-" + fechaf
   split0 = rango.split("-")
   dias = (Number(split0[3]) - Number(split0[0])) + ((Number(split0[4]) - Number(split0[1])) * 30)
   //console.log(dias)
@@ -162,8 +163,9 @@ selectDatarango: function(req, res, rango){
 },
 
 //Seleccionar los datos por rango de hora
-selectDatarangohour: function(req, res, rango){
+selectDatarangohour: function(req, res, horai, horaf){
   //console.log(rango)
+  rango = horai + "-" + horaf
   split0 = rango.split("-")
   split0_1 = split0[0].split(":")
   split0_2 = split0[1].split(":")
@@ -198,8 +200,9 @@ selectDatarangohour: function(req, res, rango){
 },
 
 //Seleccionar los datos por rango de hora y una fecha
-selectDatarangohourdate: function(req, res, rango){
+selectDatarangohourdate: function(req, res, horai, horaf, fecha){
   //console.log(rango)
+  rango = horai + "-" + horaf + "-" + fecha
   split0 = rango.split("-")
   split0_1 = split0[0].split(":")
   split0_2 = split0[1].split(":")

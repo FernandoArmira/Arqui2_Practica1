@@ -175,21 +175,25 @@ app.get('/datosmes:mes',(req, res ) => {
 })
 
 //datos tomados por rango de fecha /datos12-9-2021-15-9-2021
-app.get('/datos:rango',(req, res ) => {
-    const {rango} = req.params;
-    database.selectDatarango(req,res,rango)
+app.post('/datos',(req, res ) => {
+    var fechai = req.body.fechai
+    var fechaf = req.body.fechaf
+    database.selectDatarango(req,res,fechai,fechaf)
 })
 
 //datos tomados por rango de hora /rangohora10:10-12:30
-app.get('/rangohora:rangohora',(req, res ) => {
-    const {rangohora} = req.params;
-    database.selectDatarangohour(req,res,rangohora)
+app.post('/rangohora',(req, res ) => {
+    var horai = req.body.horai
+    var horaf = req.body.horaf
+    database.selectDatarangohour(req,res,horai,horaf)
 })
 
 //datos tomados por rango de hora y una fecha en especifico /rangofechahora10:10-12:30-25-9-2021
-app.get('/rangofecha:rangohora',(req, res ) => {
-    const {rangohora} = req.params;
-    database.selectDatarangohourdate(req,res,rangohora)
+app.post('/rangofecha',(req, res ) => {
+    var horai = req.body.horai
+    var horaf = req.body.horaf
+    var fecha = req.body.fecha
+    database.selectDatarangohourdate(req,res,horai,horaf,fecha)
 })
 
 //TIEMPO MAL SENTADO
