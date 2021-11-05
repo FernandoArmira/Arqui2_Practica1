@@ -241,7 +241,7 @@ function carga()
             //console.log(contador_s);
             //console.log("0:" + contador_m + ":" + contador_s)
             tiempo= "0:" + contador_m + ":" + contador_s
-            if(contador_m >= 2){
+            if(contador_m >= 59){
                 advertencia = true
             }else{
                 advertencia = false
