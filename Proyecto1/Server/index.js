@@ -20,6 +20,7 @@ var estadosentado =""
 var cronometro
 var tiempo = "0:0:0"
 var contador = 0
+var advertencia = false
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Conexion a puerto serial
@@ -160,7 +161,7 @@ app.get('/selectchair:user',(req, res ) => {
 
 //Tiempo real
 app.get('/realtime',(req, res ) => {
-    dato = "{\"estado\": \"" + estadosentado + "\", \"tiempo\": \"" + tiempo +"\"}"
+    dato = "{\"estado\": \"" + estadosentado + "\", \"tiempo\": \"" + tiempo + "\", \"advertencia\": \"" + advertencia +"\"}"
     const obj  = JSON.parse(dato);
     res.send(obj)
 })
@@ -240,6 +241,12 @@ function carga()
             //console.log(contador_s);
             //console.log("0:" + contador_m + ":" + contador_s)
             tiempo= "0:" + contador_m + ":" + contador_s
+            if(contador_m >= 2){
+                advertencia = true
+            }else{
+                advertencia = false
+            }
+            //console.log(advertencia)
             contador_s++;
         }
         ,1000);
