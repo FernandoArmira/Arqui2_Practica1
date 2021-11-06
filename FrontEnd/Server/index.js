@@ -150,3 +150,33 @@ app.get('/realtime',(req, res ) => {
     const obj  = JSON.parse(dato);
     res.send(obj)
 })
+
+
+
+///////////////////////////////////ENDPOINTS PROYECTO 2//////////////////////////////////////////////////
+
+//FILTRO DE DATOS
+//datos tomados por mes /datosmes9
+app.get('/datosmes:mes',(req, res ) => {
+    const {mes} = req.params;
+    database.selectDatamonth(req,res, mes)
+})
+
+app.post('/rangohora',(req, res ) => {
+    var horai = req.body.horai
+    var horaf = req.body.horaf
+    database.selectDatarangohour(req,res,horai,horaf)
+})
+
+app.get('/malsentadototal',(req, res ) => {
+    database.tiempototalmalsentado(req,res)
+})
+
+app.get('/malsentadotiempouso',(req, res ) => {
+    database.tiempousadomalsentado(req,res)
+})
+
+app.get('/malsentadohorario:fecha',(req, res ) => {
+    const {fecha} = req.params;
+    database.selecthorariomalsentado(req,res, fecha)
+})

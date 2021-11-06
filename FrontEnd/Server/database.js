@@ -46,12 +46,13 @@ module.exports = {
       ":" +
       fecha.getSeconds() +
       '"}';
-    console.log(str2);
+    //console.log(str2);
 
     return str2;
   },
 
   //Cal
+  /*
   yesterday: function () {
     var fecha = new Date();
     const str2 =
@@ -85,7 +86,7 @@ module.exports = {
         });
     });
   },
-
+*/
   // Monitoreo de los datos
   monitoreo: function (req, res) {
     MongoClient.connect(url, function (err, db) {
@@ -111,10 +112,10 @@ module.exports = {
       dbo
         .collection("horarios")
         .find({
-          fecha:{
-            $gte:req.body.fecha,
-            $lte:req.body.fecha2
-          }
+          fecha: {
+            $gte: req.body.fecha,
+            $lte: req.body.fecha2,
+          },
           /*
           $or: [
             { dia: "Mon" },
@@ -143,6 +144,388 @@ module.exports = {
       dbo
         .collection("medidas")
         .find({ fecha: datep })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          //console.log(result);
+          res.send(result);
+          db.close();
+        });
+    });
+  },
+
+  //Seleccionar todos los datos de un mes
+  selectDatamonth: function (req, res, mes) {
+    MongoClient.connect(url, function (err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("medidas")
+        .find({
+          $or: [{ sentado: 0 }, { sentado: 1 }, { sentado: 2 }, { sentado: 3 }],
+        })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          var filtro = [];
+          for (var i = 0; i < result.length; i++) {
+            split1 = "";
+
+            if (result[i].fecha != undefined) {
+              split1 = result[i].fecha.split("-");
+              if (split1[1] == mes) {
+                filtro.push(result[i]);
+              }
+            }
+          }
+
+          res.send(filtro);
+          db.close();
+        });
+    });
+  },
+
+  //Seleccionar los datos por rango de hora
+  selectDatarangohour: function (req, res, horai, horaf) {
+    //console.log(rango)
+    rango = horai + "-" + horaf;
+    split0 = rango.split("-");
+    split0_1 = split0[0].split(":");
+    split0_2 = split0[1].split(":");
+    tiempo =
+      (Number(split0_2[0]) - Number(split0_1[0])) * 60 +
+      (Number(split0_2[1]) - Number(split0_1[1]));
+    //console.log(tiempo)
+    MongoClient.connect(url, function (err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("medidas")
+        .find({
+          $or: [{ sentado: 0 }, { sentado: 1 }, { sentado: 2 }, { sentado: 3 }],
+        })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          var filtro = [];
+          for (var i = 0; i < result.length; i++) {
+            split1 = "";
+
+            if (result[i].fecha != undefined) {
+              split1 = result[i].hora.split(":");
+              tiempodb =
+                (Number(split0_2[0]) - Number(split1[0])) * 60 +
+                (Number(split0_2[1]) - Number(split1[1]));
+              if (tiempodb <= tiempo && tiempodb >= 0) {
+                //console.log(result[i].fecha)
+                //console.log(split1[1])
+                filtro.push(result[i]);
+              }
+            }
+          }
+
+          res.send(filtro);
+          db.close();
+        });
+    });
+  },
+
+  tiempototalmalsentado: function (req, res) {
+    MongoClient.connect(url, function (err, db) {
+      tiempototal = 0;
+      tiempomalsentado = 0;
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("horariosmalsentado")
+        .find()
+        .sort({ fecha: 1 })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          //console.log(result);
+          //res.send(result);
+          tiempototal = 0;
+          tiempomalsentado = 0;
+          for (var i = 0; i < result.length; i++) {
+            tiempototal = tiempototal + result[i].tiempo;
+            tiempomalsentado = tiempomalsentado + result[i].tiempomalsentado;
+          }
+          //console.log(tiempototal)
+
+          res.send(
+            '{"tiempototal": ' +
+              tiempototal.toFixed(2) +
+              ',"tiempototalmalsentado": ' +
+              tiempomalsentado.toFixed(2) +
+              "}"
+          );
+
+          db.close();
+        });
+    });
+  },
+
+  tiempousadomalsentado: function (req, res) {
+    MongoClient.connect(url, function (err, db) {
+      var array = [];
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Sun" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Sun";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[0] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[0] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Mon" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Mon";
+          prom = 0;
+
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[1] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[1] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Tue" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Tue";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[2] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[2] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Wed" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Wed";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[3] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[3] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Thu" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Thu";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[4] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[4] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Fri" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          total = 0;
+          dia = "Fri";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[5] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[5] = obj;
+          }
+        });
+      dbo
+        .collection("horariosmalsentado")
+        .find({ dia: "Sat" })
+        .toArray(function (err, result) {
+          if (err) throw err;
+          //console.log(result[0]);
+          total = 0;
+          dia = "Sat";
+          prom = 0;
+          totalms = 0;
+          for (var i = 0; i < result.length; i++) {
+            total = total + result[i].tiempo;
+            totalms = totalms + result[i].tiempomalsentado;
+            dia = result[i].dia;
+          }
+          //console.log(tiempototal)
+          prom = total.toFixed(2);
+
+          dato =
+            '{ "dia": "' +
+            dia +
+            '" ,"tiempototal": ' +
+            prom +
+            ',"tiempototalmalsentado": ' +
+            totalms.toFixed(2) +
+            "}";
+
+          if (result.length == 0) {
+            array[6] = null;
+          } else {
+            const obj = JSON.parse(dato);
+            array[6] = obj;
+          }
+        });
+
+      dbo
+        .collection("horariosmalsentado")
+        .find()
+        .toArray(function (err, result) {
+          if (err) throw err;
+          //console.log(result[0]);
+          media =
+            (array[0].tiempototal +
+              array[1].tiempototal +
+              array[2].tiempototal +
+              array[3].tiempototal +
+              array[4].tiempototal +
+              array[5].tiempototal) /
+            7;
+          //console.log(media)
+          dato = '{"media": ' + media.toFixed(2) + "}";
+          const obj = JSON.parse(dato);
+          array[7] = obj;
+          //res.send(result)
+          res.send(array);
+          db.close();
+        });
+    });
+  },
+
+  selecthorariomalsentado: function (req, res, fechap) {
+    MongoClient.connect(url, function (err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("horariosmalsentado")
+        .find({ fecha: fechap })
         .toArray(function (err, result) {
           if (err) throw err;
           //console.log(result);
@@ -1288,7 +1671,7 @@ module.exports = {
     });
   },
 
-  selectsilla: function (req, res,) {
+  selectsilla: function (req, res) {
     MongoClient.connect(url, function (err, db) {
       if (err) throw err;
       var dbo = db.db("mydb");

@@ -50,7 +50,11 @@ export const Reportes = ({
   dataMonitor = [],
   dataHistorialUso = [],
   setDataHistorialUso,
-  setDataHistorial,  
+  setDataHistorial,
+  setDataRangoHora,
+  dataRangoHora = [],
+  dataMalSentado = [],
+  dataMalSentadoDias = [],
 }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -110,6 +114,20 @@ export const Reportes = ({
     const datares = await response.json();
     //console.log(datares);
     setDataHistorial(datares);
+  };
+
+  const handleSubmitRangoHora = async (event) => {
+    event.preventDefault();
+    const response = await fetch("http://localhost:3001/rangohora", {
+      method: "POST",
+      body: JSON.stringify({
+        horai: event.target.horai.value,
+        horaf: event.target.horaf.value,
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const datares = await response.json();
+    setDataRangoHora(datares);
   };
 
   const data = {
@@ -206,18 +224,38 @@ export const Reportes = ({
    * DATA PARA SPECTRO GRAFICA HORARIO DE USO
    */
 
+   const media1 = dataMalSentadoDias
+   .filter((row) => row !== null)
+   .map((row) => (row.media)).filter((row) => row !== undefined);
+
   const dataSpectro = {
     datasets: [
       {
-        label: "HORARIO DE USO",
-        data:dataHistorial.filter(({tiempo}) => tiempo !== 0).map(({fecha, tiempo}) => ({ x:fecha, y:tiempo})),
-            //y: horariouso.map(({ tiempo }) => tiempo)
-          
+        label: "HORARIO DE USO - FECHA",
+        data: dataHistorial
+          .filter(({ tiempo }) => tiempo !== 0)
+          .map(({ fecha, tiempo }) => ({ x: fecha, y: tiempo })),
+        //y: horariouso.map(({ tiempo }) => tiempo)
+
         backgroundColor: "rgba(255, 99, 132, 1)",
       },
     ],
   };
- 
+
+  const dataSpectroHorario = {
+    datasets: [
+      {
+        label: "RANGO HORARIO DE USO",
+        data: dataRangoHora
+          .filter(({ sentado }) => sentado !== 0)
+          .map(({ fecha, peso }) => ({ x: fecha, y: peso })),
+        //y: horariouso.map(({ tiempo }) => tiempo)
+
+        backgroundColor: "rgba(255, 199, 132, 1)",
+      },
+    ],
+  };
+
   const dataBar = {
     labels: dataDashboardPromedioLevanta
       .filter((row) => row !== null)
@@ -251,6 +289,46 @@ export const Reportes = ({
       },
     ],
   };
+
+  /**
+   * VALORES PARA MAL SENTADO POR DIA
+   */
+
+   const genData = () => ({
+    labels: dataMalSentadoDias.filter((row) => row !== null).map(({ dia }) => dia),
+    datasets: [
+      {
+        label: `Total tiempo mal sentado - Referencia = ${media1[0]}`,
+        data: dataMalSentadoDias.filter((row) => row !== null).map(({tiempototal})  => {
+          //console.log(media1)
+          if(tiempototal > media1) return tiempototal;
+          else return tiempototal*-1;
+        }),
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(100, 159, 64, 0.2)',
+          'rgba(153, 159, 64, 0.2)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(100, 159, 64, 0.2)',
+          'rgba(153, 159, 64, 0.2)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  });
+
   return (
     <>
       <Typography
@@ -399,6 +477,99 @@ export const Reportes = ({
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Scatter data={dataSpectro} options={options} />
+        </Grid>
+      </Grid>
+
+      <br></br>
+      <Typography
+        component="h1"
+        variant="h4"
+        color="inherit"
+        noWrap
+        align="center"
+      >
+        Rango de Hora
+      </Typography>
+
+      <form onSubmit={handleSubmitRangoHora}>
+        <TextField name="horai" variant="outlined" type="time" required />
+        <TextField name="horaf" variant="outlined" type="time" required />
+        <Button type="submit">Enviar</Button>
+      </form>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Scatter data={dataSpectroHorario} options={options} />
+        </Grid>
+      </Grid>
+
+      <Typography
+        component="h1"
+        variant="h4"
+        color="inherit"
+        noWrap
+        align="center"
+      >
+        MAL SENTADO
+      </Typography>
+
+      <br></br>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4} lg={6} key={`carddash-10`}>
+          <Card>
+            <CardContent>
+              <Typography
+                component="p"
+                align="center"
+                component="h1"
+                variant="h5"
+              >
+                Tiempo Total Acumulado
+              </Typography>
+            </CardContent>
+            <div align="center" size="large">
+              <Typography
+                component="p"
+                align="center"
+                component="h1"
+                variant="h5"
+              >
+                {dataMalSentado.tiempototal}
+              </Typography>
+            </div>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4} lg={6} key={`carddash-20`}>
+          <Card>
+            <CardContent>
+              <Typography
+                component="p"
+                align="center"
+                component="h1"
+                variant="h5"
+              >
+                Tiempo Total Actualmente
+              </Typography>
+            </CardContent>
+            <div align="center" size="large">
+              <Typography
+                component="p"
+                align="center"
+                component="h1"
+                variant="h5"
+              >
+                {dataMalSentado.tiempototalmalsentado}
+              </Typography>
+            </div>
+          </Card>
+        </Grid>
+      </Grid>
+      <br></br>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Bar data={genData} options={options} />
         </Grid>
       </Grid>
     </>

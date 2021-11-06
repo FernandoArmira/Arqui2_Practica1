@@ -28,7 +28,10 @@ export const App = () => {
   const [dataUsuario, setDataUsuario] = React.useState([]);
   const [dataMonitor, setDataMonitor] = React.useState([]);
   const [dataHistorial, setDataHistorial] = React.useState([]);
+  const [dataRangoHora, setDataRangoHora] = React.useState([]);
+  const [dataMalSentadoDias, setDataMalSentadoDias] = React.useState([]);
   const [dataHistorialUso, setDataHistorialUso] = React.useState([]);
+  const [dataMalSentado, setDataMalSentado] = React.useState([]);
   const [dataDashboard, setDataDashboard] = React.useState([]);
   const [dataDashboardTotalTime, setDataDashboardTotalTime] = React.useState(
     []
@@ -38,6 +41,7 @@ export const App = () => {
     React.useState([]);
   const [dataDashboardPromedioLevanta, setDataDashboardPromedioLevanta] =
     React.useState([]);
+
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const handleDrawerOpen = () => {
@@ -46,6 +50,10 @@ export const App = () => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  /**
+   * Get de los state
+   */
 
   const getDataMonitor = async () => {
     const response = await fetch(`${URL_API_BACKEND}/monitoreo`);
@@ -89,8 +97,24 @@ export const App = () => {
     setDataDashboardPromedioLevanta(allData);
   };
 
+  const getDataMalSentado = async () => {
+    const response = await fetch(`${URL_API_BACKEND}/malsentadototal`);
+    const allData = await response.json();
+    setDataMalSentado(allData);
+  };
+
+  const getDataMalSentadoDias = async () => {
+    const response = await fetch(`${URL_API_BACKEND}/malsentadotiempouso`);
+    const allData = await response.json();
+    setDataMalSentadoDias(allData);
+  };
+
+  /**
+   * FIN STATE
+   */
+
   React.useEffect(() => {
-    const interval = setInterval(() => {
+    //const interval = setInterval(() => {
       getDataMonitor().catch((error) => console.error(error));
       getDataDashboard().catch((error) => console.error(error));
       getDataDashboardTotalTime().catch((error) => console.error(error));
@@ -98,9 +122,11 @@ export const App = () => {
       getDataDashboardTTime().catch((error) => console.error(error));
       getDataDashboardPromedioLevanta().catch((error) => console.error(error));
       getDataRealTime().catch((error) => console.error(error));
-    }, 90000);
+      getDataMalSentado().catch((error) => console.error(error));
+      getDataMalSentadoDias().catch((error) => console.error(error));
+    //}, 5000);
 
-    return () => clearInterval(interval);
+    //return () => clearInterval(interval);
   }, []);
 
   return (
@@ -144,7 +170,11 @@ export const App = () => {
                   dataMonitor={dataMonitor}
                   dataHistorialUso={dataHistorialUso}
                   setDataHistorialUso={setDataHistorialUso}
-                  setDataHistorial={setDataHistorial}                  
+                  setDataHistorial={setDataHistorial}
+                  setDataRangoHora={setDataRangoHora}   
+                  dataRangoHora={dataRangoHora}   
+                  dataMalSentado={dataMalSentado}
+                  dataMalSentadoDias={dataMalSentadoDias}      
                 />
               </Route>
               <Route exact path="/">
